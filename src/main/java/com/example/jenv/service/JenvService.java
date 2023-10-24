@@ -23,7 +23,7 @@ import java.util.Objects;
 public class JenvService {
     public void initProject(Project project) {
         String userHomePath = System.getProperty("user.home");
-        String jenvFilePath = userHomePath + File.separator + JenvConstants.JENV_FILE_EXTENSION.getName();
+        String jenvFilePath = userHomePath + File.separator + JenvConstants.JENV_FILE_EXTENSION;
         VirtualFile jenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvFilePath));
         JenvState state = Objects.requireNonNull(JenvStateService.getInstance().getState());
 
@@ -43,7 +43,7 @@ public class JenvService {
             }
         }
 
-        String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE.getName();
+        String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));
 
         if (projectJenvFile != null && projectJenvFile.exists()) {

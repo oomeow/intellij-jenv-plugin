@@ -35,7 +35,7 @@ public class DefaultDialog extends AbstractDialogWrapper {
     protected void doOKAction() {
         try {
             if (dialogMessage == DialogMessage.JENV_NOT_INSTALL) {
-                Desktop.getDesktop().browse(new URI(JenvConstants.JENV_INSTALL_URL.getName()));
+                Desktop.getDesktop().browse(new URI(JenvConstants.JENV_INSTALL_URL));
             } else {
                 this.close(OK_EXIT_CODE);
             }

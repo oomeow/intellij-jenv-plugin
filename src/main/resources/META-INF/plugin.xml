@@ -6,7 +6,7 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+<!--    <resource-bundle>messages.MyBundle</resource-bundle>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.example.jenv.service.JenvService"/>
@@ -15,7 +15,6 @@
     </extensions>
 
     <applicationListeners>
-<!--        <listener class="com.example.jenv.listener.ProjectListener" topic="com.intellij.openapi.startup.StartupManager"/>-->
         <listener class="com.example.jenv.listener.JenvFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>

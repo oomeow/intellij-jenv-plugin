@@ -36,7 +36,7 @@ public class JenvFileChangeListener implements BulkFileListener {
             DataManager.getInstance().getDataContextFromFocusAsync().onSuccess(dataContext -> {
                 Project currentProject = dataContext.getData(PlatformDataKeys.PROJECT);
                 if (currentProject != null) {
-                    String currentProjectJenvPath = currentProject.getBasePath() + File.separator + JenvConstants.VERSION_FILE.getName();
+                    String currentProjectJenvPath = currentProject.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
                     if (!state.isChangeJenvByDialog()) {
                         for (VFileEvent fileEvent : events) {
                             if (fileEvent.getPath().equals(currentProjectJenvPath)) {
@@ -50,11 +50,10 @@ public class JenvFileChangeListener implements BulkFileListener {
                                         service.changeJenvVersion();
 //                            System.out.println(fileEvent.getFile().getName());
                                     } else {
-                                        String groupId = "Jenv Error";
                                         String title = "JDK not found";
                                         String content = "<html>Java version (%s) not found in Idea <br/> Please check JDK is exists and then open Project Structure and then add JDK.</html>";
                                         String format = String.format(content, jdkVersion);
-                                        Notification notification = new Notification(groupId, title, format, NotificationType.ERROR);
+                                        Notification notification = new Notification(JenvConstants.JENV_NOTIFICATION_GROUP_ID, title, format, NotificationType.ERROR);
                                         Notifications.Bus.notify(notification);
                                     }
                                 } catch (IOException e) {

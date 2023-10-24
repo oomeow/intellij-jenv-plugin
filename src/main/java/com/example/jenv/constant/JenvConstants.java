@@ -1,17 +1,8 @@
 package com.example.jenv.constant;
 
-public enum JenvConstants {
-    VERSION_FILE(".java-version"),
-    JENV_FILE_EXTENSION(".jenv"),
-    JENV_INSTALL_URL("https://www.jenv.be");
-
-    private final String name;
-
-    JenvConstants(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+public class JenvConstants {
+    public static final String VERSION_FILE = ".java-version";
+    public static final String JENV_FILE_EXTENSION = ".jenv";
+    public static final String JENV_INSTALL_URL = "https://www.jenv.be";
+    public static final String JENV_NOTIFICATION_GROUP_ID = "Jenv Error";
 }
