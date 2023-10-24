@@ -3,6 +3,7 @@ package com.example.jenv.service;
 import com.example.jenv.JenvHelper;
 import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.JenvConstants;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -21,7 +22,8 @@ import java.util.Objects;
 
 public class JenvService {
     public void initProject(Project project) {
-        String jenvFilePath = System.getProperty("user.home") + File.separator + JenvConstants.JENV_FILE_EXTENSION.getName();
+        String userHomePath = System.getProperty("user.home");
+        String jenvFilePath = userHomePath + File.separator + JenvConstants.JENV_FILE_EXTENSION.getName();
         VirtualFile jenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvFilePath));
         JenvState state = Objects.requireNonNull(JenvStateService.getInstance().getState());
 
@@ -30,6 +32,15 @@ public class JenvService {
         }
         if (CollectionUtils.isNotEmpty(JenvHelper.getAllJdkVersionList())) {
             state.setJavaInstalled(true);
+        }
+        String jEnvVersionPath = userHomePath + File.separator + ".jenv/versions";
+        VirtualFile jenvVersionDir = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jEnvVersionPath));
+        if (jenvVersionDir != null && jenvVersionDir.exists()) {
+            VirtualFile[] children = jenvVersionDir.getChildren();
+            for (VirtualFile jdkVersionDir : children) {
+                System.out.println(jdkVersionDir.getPath());
+                System.out.println(jdkVersionDir.getCanonicalPath());
+            }
         }
 
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE.getName();
@@ -60,11 +71,13 @@ public class JenvService {
         if (state.isChangeJenvByDialog()) {
             VirtualFile fileByNioPath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(state.getProjectJenvFilePath()));
             if (fileByNioPath != null && fileByNioPath.exists()) {
-                try {
-                    fileByNioPath.setBinaryContent(state.getJenvJavaVersion().getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
+                ApplicationManager.getApplication().runWriteAction(() -> {
+                    try {
+                        fileByNioPath.setBinaryContent(state.getJenvJavaVersion().getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
+                    }
+                });
             }
         }
     }

@@ -27,7 +27,6 @@ public class JenvHelper {
         OptionalInt index = IntStream.range(0, versionList.size())
                 .filter(idx -> StringUtils.equals(versionList.get(idx), (currentVersion)))
                 .findFirst();
-
         if (index.isPresent()) {
             return index.getAsInt();
         }
@@ -35,7 +34,7 @@ public class JenvHelper {
     }
 
     public static String formatJdkVersion(String jdkVersion) {
-        String result = null;
+        String result = jdkVersion;
         if (StringUtils.isBlank(jdkVersion)) {
             result = StringUtils.EMPTY;
         }
