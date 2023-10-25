@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.example</id>
     <name>Jenv</name>
-    <vendor>JetBrains</vendor>
+    <vendor>Damian Johnson</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 

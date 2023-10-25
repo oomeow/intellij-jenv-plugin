@@ -33,15 +33,16 @@ public class JenvService {
         if (CollectionUtils.isNotEmpty(JenvHelper.getAllJdkVersionList())) {
             state.setJavaInstalled(true);
         }
-        String jEnvVersionPath = userHomePath + File.separator + ".jenv/versions";
-        VirtualFile jenvVersionDir = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jEnvVersionPath));
-        if (jenvVersionDir != null && jenvVersionDir.exists()) {
-            VirtualFile[] children = jenvVersionDir.getChildren();
-            for (VirtualFile jdkVersionDir : children) {
-                System.out.println(jdkVersionDir.getPath());
-                System.out.println(jdkVersionDir.getCanonicalPath());
-            }
-        }
+//        获取 jenv 所有的jdk
+//        String jEnvVersionPath = userHomePath + File.separator + ".jenv/versions";
+//        VirtualFile jenvVersionDir = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jEnvVersionPath));
+//        if (jenvVersionDir != null && jenvVersionDir.exists()) {
+//            VirtualFile[] children = jenvVersionDir.getChildren();
+//            for (VirtualFile jdkVersionDir : children) {
+//                System.out.println(jdkVersionDir.getPath());
+//                System.out.println(jdkVersionDir.getCanonicalPath());
+//            }
+//        }
 
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));

@@ -53,7 +53,7 @@ public class JenvFileChangeListener implements BulkFileListener {
                                         String title = "JDK not found";
                                         String content = "<html>Java version (%s) not found in Idea <br/> Please check JDK is exists and then open Project Structure and then add JDK.</html>";
                                         String format = String.format(content, jdkVersion);
-                                        Notification notification = new Notification(JenvConstants.JENV_NOTIFICATION_GROUP_ID, title, format, NotificationType.ERROR);
+                                        Notification notification = new Notification(JenvConstants.NOTIFICATION_GROUP_ID, title, format, NotificationType.ERROR);
                                         Notifications.Bus.notify(notification);
                                     }
                                 } catch (IOException e) {
