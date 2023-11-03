@@ -7,30 +7,27 @@ import com.example.jenv.dialog.JenvDialog;
 import com.example.jenv.service.JenvStateService;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import org.jetbrains.annotations.NotNull;
 
 public class JenvAction extends AnAction {
-
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         JenvState state = JenvStateService.getInstance().getState();
-        state.setProject(event.getData(CommonDataKeys.PROJECT));
-
-        if (!state.isJenvInstalled()) {
-            new DefaultDialog(DialogMessage.JENV_NOT_INSTALL).show();
-            return;
+        if (state.isProjectOpened()) {
+            state.setProject(event.getProject());
+            if (!state.isJenvInstalled()) {
+                new DefaultDialog(DialogMessage.JENV_NOT_INSTALL).show();
+                return;
+            }
+            if (!state.isJavaInstalled()) {
+                new DefaultDialog(DialogMessage.JAVA_NOT_INSTALL).show();
+                return;
+            }
+            if (!state.isProjectJenvExists()) {
+                new DefaultDialog(DialogMessage.PROJECT_JAVA_VERSION_NOT_FOUND).show();
+                return;
+            }
+            new JenvDialog(DialogMessage.SELECT_JDK_VERSION).show();
         }
-
-        if (!state.isJavaInstalled()) {
-            new DefaultDialog(DialogMessage.JAVA_NOT_INSTALL).show();
-            return;
-        }
-
-        if (!state.isProjectJenvExists()) {
-            new DefaultDialog(DialogMessage.PROJECT_JAVA_VERSION_NOT_FOUND).show();
-            return;
-        }
-
-        new JenvDialog(DialogMessage.SELECT_JDK_VERSION).show();
     }
 }

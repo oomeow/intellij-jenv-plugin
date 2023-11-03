@@ -44,7 +44,7 @@ public class JenvDialog extends AbstractDialogWrapper {
 
     @Override
     protected Map<String, JComponent> makeComponents() {
-        List<String> versionList = JenvHelper.getAllJdkVersionList();
+        List<String> versionList = JenvHelper.getIdeaJenvJdksVersionList();
         comboBox = new ComboBox<>(versionList.toArray(new String[0]));
         return new HashMap<>() {{
             put("versionBox", comboBox);
