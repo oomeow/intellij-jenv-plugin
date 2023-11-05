@@ -65,8 +65,8 @@ public class JenvSelectDialog extends JDialog {
     }
 
     private void createUIComponents() {
-        radioButton_jenv = new JRadioButton();
-        radioButton_other = new JRadioButton();
+        radioButton_jenv = new JRadioButton("Jenv Jdks");
+        radioButton_other = new JRadioButton("Other Jdks");
         String[] jenvJdksArr = JenvHelper.getJenvIdeaJdkVersionList().toArray(new String[0]);
         comboBox_jenv = new ComboBox<>(jenvJdksArr);
         String[] notJenvJdkArr = JenvHelper.getNotJenvIdeaJdkVersionList().toArray(new String[0]);
@@ -120,17 +120,26 @@ public class JenvSelectDialog extends JDialog {
         });
 
 //      ComboBox status init
-        comboBox_jenv.addActionListener(item -> {
-            ComboBox<String> jenvComboBoxItem = (ComboBox<String>) item.getSource();
-            System.out.println("jenvComboBoxItem = " + jenvComboBoxItem.getItem());
-            jdkVersion = jenvComboBoxItem.getItem();
-            isJenvJdkSelected = true;
+        comboBox_jenv.addActionListener(o -> {
+            Object source = o.getSource();
+            if (source instanceof ComboBox<?> comboBox) {
+                Object item = comboBox.getItem();
+                if (item instanceof String jdkVersionItem) {
+                    jdkVersion = jdkVersionItem;
+                    isJenvJdkSelected = true;
+                }
+            }
         });
-        comboBox_other.addActionListener(item -> {
-            ComboBox<String> otherComboBoxItem = (ComboBox<String>) item.getSource();
-            System.out.println("otherComboBoxItem = " + otherComboBoxItem.getItem());
-            jdkVersion = otherComboBoxItem.getItem();
-            isJenvJdkSelected = false;
+        comboBox_other.addActionListener(o -> {
+            Object source = o.getSource();
+            if (source instanceof ComboBox<?> comboBox) {
+                Object item = comboBox.getItem();
+                if (item instanceof String jdkVersionItem) {
+                    jdkVersion = jdkVersionItem;
+                    isJenvJdkSelected = false;
+                }
+            }
         });
+//        String tips = "If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.";
     }
 }

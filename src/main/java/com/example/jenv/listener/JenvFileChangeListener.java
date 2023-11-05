@@ -3,11 +3,11 @@ package com.example.jenv.listener;
 import com.example.jenv.JenvHelper;
 import com.example.jenv.config.ProjectJenvState;
 import com.example.jenv.constant.JenvConstants;
+import com.example.jenv.constant.NotifyMessage;
 import com.example.jenv.service.JenvService;
 import com.example.jenv.service.JenvStateService;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -63,30 +63,31 @@ public class JenvFileChangeListener implements BulkFileListener {
                 String jdkVersion = new String(Objects.requireNonNull(jenvFileEvent.getFile()).contentsToByteArray()).trim();
                 if (JenvHelper.checkIdeaJDKExists(jdkVersion)) {
                     if (!JenvHelper.checkIsJenvJdk(jdkVersion) && state.isShowNotJenvJdkNotification()) {
-                        String title = "JDK not belong to Jenv";
-                        String content = "<html>Java version (%s) found in Idea, but not belong to Jenv <br/> The JDK of project will be change, event it not belong to Jenv. if you want to use JDK of Jenv, you need to change the path of the JDK.</html>";
-                        String format = String.format(content, jdkVersion);
-                        Notification notification = new Notification(JenvConstants.NOTIFICATION_GROUP_ID, title, format, NotificationType.WARNING);
-                        notification.addAction(new NotificationAction("Don't show again") {
+                        String format = String.format(NotifyMessage.NOT_JENV_JDK.getContent(), jdkVersion);
+                        NotifyMessage.NOT_JENV_JDK.setContent(format);
+                        Notification warnNotification = JenvHelper.createWarnNotification(NotifyMessage.NOT_JENV_JDK);
+                        warnNotification.addAction(new NotificationAction("Don't show again") {
                             @Override
                             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                                ProjectJenvState projectJenvState = Objects.requireNonNull(e.getProject()).getService(JenvStateService.class).getState();
-                                projectJenvState.setShowNotJenvJdkNotification(false);
-                                notification.expire();
+                                if (e.getProject() != null) {
+                                    ProjectJenvState projectJenvState = e.getProject().getService(JenvStateService.class).getState();
+                                    projectJenvState.setShowNotJenvJdkNotification(false);
+                                    notification.expire();
+                                }
                             }
                         });
-                        notification.notify(currentProject);
+                        warnNotification.notify(currentProject);
                     }
                     state.setCurrentJavaVersion(jdkVersion);
                     state.setChangeJdkByDialog(false);
                     JenvService service = JenvService.getInstance();
                     service.changeJenvVersion(currentProject, state);
                 } else {
-                    String title = "JDK not found";
-                    String content = "<html>Java version (%s) not found in Idea. <br/> Please check JDK is exists and then open Project Structure to add JDK.</html>";
+                    String content = NotifyMessage.NOT_FOUND_JDK.getContent();
                     String format = String.format(content, jdkVersion);
-                    Notification notification = new Notification(JenvConstants.NOTIFICATION_GROUP_ID, title, format, NotificationType.ERROR);
-                    notification.notify(currentProject);
+                    NotifyMessage.NOT_FOUND_JDK.setContent(format);
+                    Notification errorNotification = JenvHelper.createErrorNotification(NotifyMessage.NOT_FOUND_JDK);
+                    errorNotification.notify(currentProject);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

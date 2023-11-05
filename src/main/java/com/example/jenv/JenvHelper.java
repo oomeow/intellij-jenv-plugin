@@ -1,6 +1,9 @@
 package com.example.jenv;
 
 import com.example.jenv.constant.JenvConstants;
+import com.example.jenv.constant.NotifyMessage;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -106,5 +109,17 @@ public class JenvHelper {
             }
         }
         return false;
+    }
+
+    public static Notification createErrorNotification(NotifyMessage message) {
+        return createNotification(message, NotificationType.ERROR);
+    }
+
+    public static Notification createWarnNotification(NotifyMessage message) {
+        return createNotification(message, NotificationType.WARNING);
+    }
+
+    public static Notification createNotification(NotifyMessage message, NotificationType type) {
+        return new Notification(JenvConstants.NOTIFICATION_GROUP_ID, message.getTitle(), message.getContent(), type);
     }
 }
