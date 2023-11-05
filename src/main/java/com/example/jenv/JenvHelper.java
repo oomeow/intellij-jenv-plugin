@@ -12,9 +12,7 @@ import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class JenvHelper {
 
@@ -22,13 +20,27 @@ public class JenvHelper {
         return StringUtils.contains(System.getProperty("os.name").toLowerCase(), "win");
     }
 
-    public static List<String> getAllIdeaJdksVersionList() {
+    public static List<String> getAllIdeaJdkVersionList() {
         return Arrays.stream(ProjectJdkTable.getInstance().getAllJdks())
                 .map(Sdk::getName)
                 .collect(Collectors.toList());
     }
 
-    public static void getAllJenvJdkHomePath() {
+    public static List<String> getJenvIdeaJdkVersionList() {
+        return Arrays.stream(ProjectJdkTable.getInstance().getAllJdks())
+                .filter(o -> JenvConstants.JENV_JDK_HOME_PATH_LIST.contains(o.getHomePath()))
+                .map(Sdk::getName)
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> getNotJenvIdeaJdkVersionList() {
+        return Arrays.stream(ProjectJdkTable.getInstance().getAllJdks())
+                .filter(o -> !JenvConstants.JENV_JDK_HOME_PATH_LIST.contains(o.getHomePath()))
+                .map(Sdk::getName)
+                .collect(Collectors.toList());
+    }
+
+    public static void findAllJenvJdkHomePath() {
         JenvConstants.JENV_JDK_HOME_PATH_LIST.clear();
         String userHomePath = System.getProperty("user.home");
         String jEnvVersionPath = userHomePath + File.separator + JenvConstants.JENV_VERSIONS_DIR;
@@ -46,26 +58,24 @@ public class JenvHelper {
         }
     }
 
-    public static List<String> getIdeaJenvJdksVersionList() {
-        return Arrays.stream(ProjectJdkTable.getInstance().getAllJdks())
-                .filter(o -> JenvConstants.JENV_JDK_HOME_PATH_LIST.contains(o.getHomePath()))
-                .map(Sdk::getName)
-                .collect(Collectors.toList());
-    }
-
-    public static Integer getCurrentVersionPosition(String currentVersion) {
-        List<String> versionList = getIdeaJenvJdksVersionList();
-        OptionalInt index = IntStream.range(0, versionList.size())
-                .filter(idx -> StringUtils.equals(versionList.get(idx), (currentVersion)))
-                .findFirst();
-        if (index.isPresent()) {
-            return index.getAsInt();
+    public static Integer getCurrentJdkVersionPosition(String currentVersion, boolean isJenv, boolean isOther) {
+        List<String> versionList = getAllIdeaJdkVersionList();
+        if (isJenv) {
+            versionList = getJenvIdeaJdkVersionList();
+        } else if (isOther) {
+            versionList = getNotJenvIdeaJdkVersionList();
         }
-        return null;
+        Integer index = null;
+        for (int i = 0; i < versionList.size(); i++) {
+            if (versionList.get(i).equals(currentVersion)) {
+                index = i;
+            }
+        }
+        return index;
     }
 
     public static String formatJdkVersion(String jdkVersion) {
-        String result = jdkVersion;
+        String result = jdkVersion.trim();
         if (StringUtils.isBlank(jdkVersion)) {
             result = StringUtils.EMPTY;
         }
@@ -79,7 +89,22 @@ public class JenvHelper {
     }
 
     public static boolean checkIdeaJDKExists(String jdkVersion) {
-        Integer position = getCurrentVersionPosition(formatJdkVersion(jdkVersion));
-        return position != null;
+        List<String> allIdeaJdksVersionList = getAllIdeaJdkVersionList();
+        for (String ideaJdkVersion : allIdeaJdksVersionList) {
+            if (jdkVersion.equals(ideaJdkVersion)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean checkIsJenvJdk(String jdkVersion) {
+        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+        for (Sdk jdk : allJdks) {
+            if (jdk.getName().equals(jdkVersion) && JenvConstants.JENV_JDK_HOME_PATH_LIST.contains(jdk.getHomePath())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

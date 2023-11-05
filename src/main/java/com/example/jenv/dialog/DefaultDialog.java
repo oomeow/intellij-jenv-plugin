@@ -3,6 +3,7 @@ package com.example.jenv.dialog;
 
 import com.example.jenv.constant.DialogMessage;
 import com.example.jenv.constant.JenvConstants;
+import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultDialog extends AbstractDialogWrapper {
-    public DefaultDialog(DialogMessage dialogMessage) {
-        super(dialogMessage);
+    public DefaultDialog(DialogMessage dialogMessage, Project project) {
+        super(dialogMessage, project);
         setTitle(dialogMessage.getTitle());
     }
 
@@ -21,7 +22,7 @@ public class DefaultDialog extends AbstractDialogWrapper {
     }
 
     @Override
-    protected void updateJenvConfig() {
+    protected void updateJenvConfig(Project project) {
     }
 
     @Override

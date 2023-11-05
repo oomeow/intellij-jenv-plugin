@@ -10,7 +10,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.example.jenv.service.JenvService"/>
-        <applicationService serviceImplementation="com.example.jenv.service.JenvStateService"/>
+        <projectService serviceImplementation="com.example.jenv.service.JenvStateService"/>
         <postStartupActivity implementation="com.example.jenv.activity.JenvProjectStartupActivity"/>
     </extensions>
 

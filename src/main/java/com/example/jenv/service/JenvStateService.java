@@ -1,21 +1,16 @@
 package com.example.jenv.service;
 
-import com.example.jenv.config.JenvState;
-import com.intellij.openapi.application.ApplicationManager;
+import com.example.jenv.config.ProjectJenvState;
 
 public class JenvStateService {
 
-    private final JenvState state;
+    private final ProjectJenvState state;
 
     JenvStateService() {
-        state = new JenvState();
+        state = new ProjectJenvState();
     }
 
-    public static JenvStateService getInstance() {
-        return ApplicationManager.getApplication().getService(JenvStateService.class);
-    }
-
-    public JenvState getState() {
+    public ProjectJenvState getState() {
         return state;
     }
 }
