@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="48"
+   height="48"
+   viewBox="0 0 12.7 12.7"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="Jenv.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showguides="true" />
+  <defs
+     id="defs1">
+    <linearGradient
+       id="swatch12">
+      <stop
+         style="stop-color:#00ffff;stop-opacity:0.80000001;"
+         offset="0"
+         id="stop12" />
+      <stop
+         style="stop-color:#1c92e3;stop-opacity:0.80000001;"
+         offset="0.51975948"
+         id="stop15" />
+      <stop
+         style="stop-color:#8283e9;stop-opacity:0.80000001;"
+         offset="0.89469784"
+         id="stop14" />
+      <stop
+         style="stop-color:#896fe0;stop-opacity:0.80000001;"
+         offset="0.99195725"
+         id="stop13" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch12"
+       id="linearGradient13"
+       gradientUnits="userSpaceOnUse"
+       x1="0.66640443"
+       y1="6.4354811"
+       x2="11.776842"
+       y2="6.4354811" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch12"
+       id="linearGradient2"
+       gradientUnits="userSpaceOnUse"
+       x1="0.66640443"
+       y1="6.4354811"
+       x2="11.776842"
+       y2="6.4354811" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch12"
+       id="linearGradient3"
+       gradientUnits="userSpaceOnUse"
+       x1="0.66640443"
+       y1="6.4354811"
+       x2="11.776842"
+       y2="6.4354811" />
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="fill:url(#linearGradient13);fill-opacity:1">
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:600;font-stretch:normal;font-size:6.38761px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Semi-Bold Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient2);fill-opacity:1;stroke-width:0.532299"
+       x="4.0127516"
+       y="6.4170628"
+       id="text1"
+       transform="matrix(0.74057338,-0.00668054,-0.20274712,1.352134,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:italic;font-variant:normal;font-weight:600;font-stretch:normal;font-size:6.38761px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Semi-Bold Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient2);fill-opacity:1;stroke-width:0.532299"
+         x="4.0127516"
+         y="6.4170628">Jenv</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:200;font-stretch:normal;font-size:0.664614px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Ultra-Light Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient3);fill-opacity:1;stroke-width:0.025617"
+       x="6.0583258"
+       y="9.0997381"
+       id="text2"
+       transform="matrix(0.93551784,0,-0.19869041,1.0689267,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         style="font-style:italic;font-variant:normal;font-weight:200;font-stretch:normal;font-size:0.664614px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans, Ultra-Light Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient3);fill-opacity:1;stroke-width:0.025617"
+         x="6.0583258"
+         y="9.0997381">Java environment manager</tspan></text>
+  </g>
+</svg>
