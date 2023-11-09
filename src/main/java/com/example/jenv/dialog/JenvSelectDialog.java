@@ -24,7 +24,6 @@ public class JenvSelectDialog extends JDialog {
     private JRadioButton radioButton_other;
 
     private String jdkVersion;
-    private boolean isJenvJdkSelected;
     private final Project project;
 
     public JenvSelectDialog(Project project, String title) {
@@ -50,13 +49,11 @@ public class JenvSelectDialog extends JDialog {
     }
 
     private void onOK() {
-        JenvService jenvService = JenvService.getInstance();
         JenvStateService jenvStateService = project.getService(JenvStateService.class);
         ProjectJenvState state = Objects.requireNonNull(jenvStateService.getState());
         state.setCurrentJavaVersion(jdkVersion);
-        state.setChangeJdkByDialog(true);
-        state.setJenvJdkSelected(isJenvJdkSelected);
-        jenvService.changeJenvVersion(project, state);
+        state.setFileHasChange(false);
+        JenvService.getInstance().changeJenvJdkWithNotification(project, jdkVersion, state);
         dispose();
     }
 
@@ -67,32 +64,34 @@ public class JenvSelectDialog extends JDialog {
     private void createUIComponents() {
         radioButton_jenv = new JRadioButton("Jenv Jdks");
         radioButton_other = new JRadioButton("Other Jdks");
-        String[] jenvJdksArr = JenvHelper.getJenvIdeaJdkVersionList().toArray(new String[0]);
+        String[] jenvJdksArr = JenvHelper.getIdeaJdkVersionList(true).toArray(new String[0]);
         comboBox_jenv = new ComboBox<>(jenvJdksArr);
-        String[] notJenvJdkArr = JenvHelper.getNotJenvIdeaJdkVersionList().toArray(new String[0]);
+        String[] notJenvJdkArr = JenvHelper.getIdeaJdkVersionList(false).toArray(new String[0]);
         comboBox_other = new ComboBox<>(notJenvJdkArr);
 
-//      Components status init
+        // Components status init
         ProjectJenvState state = project.getService(JenvStateService.class).getState();
         jdkVersion = state.getCurrentJavaVersion();
-        boolean jdkExists = JenvHelper.checkIdeaJDKExists(jdkVersion);
+        boolean jdkExists = JenvHelper.checkIdeaJdkExistsByVersion(jdkVersion);
         if (jdkExists) {
             boolean isJenvJdk = JenvHelper.checkIsJenvJdk(jdkVersion);
             if (isJenvJdk) {
                 radioButton_jenv.setSelected(true);
-                comboBox_jenv.setSelectedIndex(JenvHelper.getCurrentJdkVersionPosition(jdkVersion, true, false));
+                comboBox_jenv.setSelectedIndex(JenvHelper.getCurrentJdkVersionPosition(jdkVersion, true));
                 comboBox_other.setEnabled(false);
-                isJenvJdkSelected = true;
             } else {
                 radioButton_other.setSelected(true);
-                comboBox_other.setSelectedIndex(JenvHelper.getCurrentJdkVersionPosition(jdkVersion, false, true));
+                comboBox_other.setSelectedIndex(JenvHelper.getCurrentJdkVersionPosition(jdkVersion, false));
                 comboBox_jenv.setEnabled(false);
-                isJenvJdkSelected = false;
             }
+        } else {
+            radioButton_jenv.setSelected(true);
+            comboBox_jenv.setSelectedItem(0);
+            comboBox_other.setEnabled(false);
         }
 
-//      RadioButton status init
-        radioButton_jenv.addChangeListener(item -> {
+        // RadioButton status init
+        radioButton_jenv.addChangeListener(o -> {
             if (radioButton_jenv.isSelected()) {
                 if (!comboBox_jenv.isEnabled()) {
                     comboBox_jenv.setEnabled(true);
@@ -100,12 +99,11 @@ public class JenvSelectDialog extends JDialog {
                     String selectedItem = (String) comboBox_jenv.getSelectedItem();
                     if (selectedItem != null && !StringUtils.equals(jdkVersion, selectedItem)) {
                         jdkVersion = selectedItem;
-                        isJenvJdkSelected = true;
                     }
                 }
             }
         });
-        radioButton_other.addChangeListener(item -> {
+        radioButton_other.addChangeListener(o -> {
             if (radioButton_other.isSelected()) {
                 if (!comboBox_other.isEnabled()) {
                     comboBox_other.setEnabled(true);
@@ -113,20 +111,18 @@ public class JenvSelectDialog extends JDialog {
                     String selectedItem = (String) comboBox_other.getSelectedItem();
                     if (selectedItem != null && !StringUtils.equals(jdkVersion, selectedItem)) {
                         jdkVersion = selectedItem;
-                        isJenvJdkSelected = false;
                     }
                 }
             }
         });
 
-//      ComboBox status init
+        // ComboBox status init
         comboBox_jenv.addActionListener(o -> {
             Object source = o.getSource();
             if (source instanceof ComboBox<?> comboBox) {
                 Object item = comboBox.getItem();
                 if (item instanceof String jdkVersionItem) {
                     jdkVersion = jdkVersionItem;
-                    isJenvJdkSelected = true;
                 }
             }
         });
@@ -136,10 +132,9 @@ public class JenvSelectDialog extends JDialog {
                 Object item = comboBox.getItem();
                 if (item instanceof String jdkVersionItem) {
                     jdkVersion = jdkVersionItem;
-                    isJenvJdkSelected = false;
                 }
             }
         });
-//        String tips = "If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.If you select other jdks, the project jdk still change, but the Jenv version file not be change.";
+        // String tips = "If you select other jdks, the project jdk still change, but the Jenv version file not be change.";
     }
 }

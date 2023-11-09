@@ -1,6 +1,6 @@
 package com.example.jenv.config;
 
-import com.example.jenv.JenvHelper;
+import com.example.jenv.util.JenvVersionParser;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -11,9 +11,8 @@ public class ProjectJenvState {
     private boolean projectOpened;
     private String projectJenvFilePath;
     private String currentJavaVersion;
-    private boolean changeJdkByDialog;
+    private boolean fileHasChange;
     private boolean showNotJenvJdkNotification;
-    private boolean jenvJdkSelected;
 
     public boolean isJenvInstalled() {
         return jenvInstalled;
@@ -63,12 +62,12 @@ public class ProjectJenvState {
         this.currentJavaVersion = currentJavaVersion;
     }
 
-    public boolean isChangeJdkByDialog() {
-        return changeJdkByDialog;
+    public boolean isFileHasChange() {
+        return fileHasChange;
     }
 
-    public void setChangeJdkByDialog(boolean changeJdkByDialog) {
-        this.changeJdkByDialog = changeJdkByDialog;
+    public void setFileHasChange(boolean fileHasChange) {
+        this.fileHasChange = fileHasChange;
     }
 
     public boolean isShowNotJenvJdkNotification() {
@@ -79,28 +78,17 @@ public class ProjectJenvState {
         this.showNotJenvJdkNotification = showNotJenvJdkNotification;
     }
 
-    public boolean isJenvJdkSelected() {
-        return jenvJdkSelected;
-    }
-
-    public void setJenvJdkSelected(boolean jenvJdkSelected) {
-        this.jenvJdkSelected = jenvJdkSelected;
-    }
-
     public String getFormattedJavaVersion() {
-        if (jenvJdkSelected) {
-            return JenvHelper.formatJdkVersion(currentJavaVersion);
-        }
-        return currentJavaVersion;
+        return JenvVersionParser.tryParser(currentJavaVersion);
     }
 
-    public String getJenvJavaVersion() {
-        double parsed = Double.parseDouble(currentJavaVersion);
-        if (parsed >= 10.0) {
-            parsed += 0.0;
-        }
-        return Double.toString(parsed);
-    }
+//    public String getJenvJavaVersion() {
+//        double parsed = Double.parseDouble(currentJavaVersion);
+//        if (parsed >= 10.0) {
+//            parsed += 0.0;
+//        }
+//        return Double.toString(parsed);
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -116,7 +104,6 @@ public class ProjectJenvState {
                 .append(projectOpened, that.projectOpened)
                 .append(projectJenvFilePath, that.projectJenvFilePath)
                 .append(currentJavaVersion, that.currentJavaVersion)
-                .append(changeJdkByDialog, that.changeJdkByDialog)
                 .append(showNotJenvJdkNotification, that.showNotJenvJdkNotification)
                 .isEquals();
     }
@@ -130,7 +117,6 @@ public class ProjectJenvState {
                 .append(projectOpened)
                 .append(projectJenvFilePath)
                 .append(currentJavaVersion)
-                .append(changeJdkByDialog)
                 .append(showNotJenvJdkNotification)
                 .toHashCode();
     }

@@ -4,6 +4,7 @@ import com.example.jenv.config.ProjectJenvState;
 import com.example.jenv.constant.DialogMessage;
 import com.example.jenv.dialog.DefaultDialog;
 import com.example.jenv.dialog.JenvSelectDialog;
+import com.example.jenv.service.JenvJdkTableService;
 import com.example.jenv.service.JenvStateService;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,6 +36,7 @@ public class JenvAction extends AnAction {
             jenvSelectDialog.pack();
             jenvSelectDialog.setLocationRelativeTo(null);
             jenvSelectDialog.setVisible(true);
+            JenvJdkTableService.getInstance().refreshJenvJdks();
         }
     }
 }

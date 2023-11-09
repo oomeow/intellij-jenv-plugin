@@ -3,16 +3,24 @@ package com.example.jenv.service;
 import com.example.jenv.JenvHelper;
 import com.example.jenv.config.ProjectJenvState;
 import com.example.jenv.constant.JenvConstants;
+import com.example.jenv.constant.NotifyMessage;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
+import com.intellij.openapi.projectRoots.impl.ProjectJdkTableImpl;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.remote.ui.SdkScopeController;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +37,7 @@ public class JenvService {
     }
 
     public void initProject(Project project) {
-        String userHomePath = System.getProperty("user.home");
-        String jenvFilePath = userHomePath + File.separator + JenvConstants.JENV_DIR;
-        VirtualFile jenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvFilePath));
+        VirtualFile jenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(JenvConstants.JENV_DIR));
         JenvStateService jenvStateService = project.getService(JenvStateService.class);
         ProjectJenvState state = Objects.requireNonNull(jenvStateService.getState());
 
@@ -41,7 +47,7 @@ public class JenvService {
         if (CollectionUtils.isNotEmpty(JenvHelper.getAllIdeaJdkVersionList())) {
             state.setJavaInstalled(true);
         }
-        JenvHelper.findAllJenvJdkHomePath();
+        JenvHelper.refreshAllJenvJdkInfo();
 
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));
@@ -52,10 +58,10 @@ public class JenvService {
                 Path path = Paths.get(projectJenvFile.getPath());
                 String jdkVersion = Files.readString(path).trim();
                 state.setCurrentJavaVersion(jdkVersion);
-                Sdk jdk = ProjectJdkTable.getInstance().findJdk(state.getFormattedJavaVersion());
+                Sdk jdk = ProjectJdkTable.getInstance().findJdk(state.getCurrentJavaVersion());
                 if (jdk != null) {
                     Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-                    if (projectSdk == null || !StringUtils.equals(Objects.requireNonNull(projectSdk).getName(), jdk.getName())) {
+                    if (projectSdk == null || projectSdk != jdk) {
                         SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
                     }
                 }
@@ -65,23 +71,66 @@ public class JenvService {
         }
         state.setShowNotJenvJdkNotification(true);
         state.setProjectOpened(true);
+
+        // listen the project jdk change event
+        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> {
+            Sdk changedJdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (changedJdk == null) {
+                return;
+            }
+            String changedJdkVersion = changedJdk.getName();
+            JenvStateService stateService = project.getService(JenvStateService.class);
+            ProjectJenvState projectState = stateService.getState();
+            if (projectState.isFileHasChange()) {
+                return;
+            }
+            boolean isJenvJdk = JenvHelper.checkIsJenvJdk(changedJdkVersion);
+            if (isJenvJdk) {
+                projectState.setCurrentJavaVersion(changedJdkVersion);
+                VirtualFile fileByNioPath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectState.getProjectJenvFilePath()));
+                if (fileByNioPath != null && fileByNioPath.exists()) {
+                    ApplicationManager.getApplication().runWriteAction(() -> {
+                        try {
+                            fileByNioPath.setBinaryContent(changedJdkVersion.getBytes(StandardCharsets.UTF_8));
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    });
+                }
+            }
+        });
     }
 
-    public void changeJenvVersion(Project project, ProjectJenvState state) {
-        Sdk jdk = ProjectJdkTable.getInstance().findJdk(state.getFormattedJavaVersion());
-        SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
-        if (state.isChangeJdkByDialog() && state.isJenvJdkSelected()) {
-            VirtualFile fileByNioPath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(state.getProjectJenvFilePath()));
-            if (fileByNioPath != null && fileByNioPath.exists()) {
-                ApplicationManager.getApplication().runWriteAction(() -> {
-                    try {
-                        fileByNioPath.setBinaryContent(state.getCurrentJavaVersion().getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException e) {
-                        System.out.println(e.getMessage());
+    public void changeJenvJdkWithNotification(Project currentProject, String jdkVersion, ProjectJenvState state) {
+        if (JenvHelper.checkIdeaJdkExistsByVersion(jdkVersion)) {
+            if (!JenvHelper.checkIsJenvJdk(jdkVersion) && state.isShowNotJenvJdkNotification()) {
+                String formatMessage = String.format(NotifyMessage.NOT_JENV_JDK.getFormatTemplate(), jdkVersion);
+                NotifyMessage.NOT_JENV_JDK.setContent(formatMessage);
+                Notification warnNotification = JenvHelper.createWarnNotification(NotifyMessage.NOT_JENV_JDK);
+                warnNotification.addAction(new NotificationAction("Don't show again") {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                        if (e.getProject() != null) {
+                            ProjectJenvState projectJenvState = e.getProject().getService(JenvStateService.class).getState();
+                            projectJenvState.setShowNotJenvJdkNotification(false);
+                            notification.expire();
+                        }
                     }
                 });
+                warnNotification.notify(currentProject);
             }
-            state.setChangeJdkByDialog(false);
+            state.setCurrentJavaVersion(jdkVersion);
+            Sdk jdk = ProjectJdkTable.getInstance().findJdk(state.getCurrentJavaVersion());
+            Sdk projectSdk = ProjectRootManager.getInstance(currentProject).getProjectSdk();
+            if (jdk != null && jdk != projectSdk) {
+                SdkConfigurationUtil.setDirectoryProjectSdk(currentProject, jdk);
+            }
+        } else {
+            String formatMessage = String.format(NotifyMessage.NOT_FOUND_JDK.getFormatTemplate(), jdkVersion);
+            NotifyMessage.NOT_FOUND_JDK.setContent(formatMessage);
+            Notification errorNotification = JenvHelper.createErrorNotification(NotifyMessage.NOT_FOUND_JDK);
+            errorNotification.notify(currentProject);
         }
     }
+
 }
