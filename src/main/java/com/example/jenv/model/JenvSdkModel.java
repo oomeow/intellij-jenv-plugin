@@ -1,7 +1,12 @@
 package com.example.jenv.model;
 
 import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.util.JenvUtils;
+import com.example.jenv.util.JenvVersionParser;
 import com.intellij.openapi.projectRoots.Sdk;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
 
 public class JenvSdkModel {
     private String name;
@@ -9,8 +14,6 @@ public class JenvSdkModel {
     private String majorVersion;
     private String homePath;
     private String canonicalPath;
-//    private boolean belongIdea;
-//    private boolean belongJenv;
     private JenvJdkExistsType existsType;
     private Sdk ideaJdkInfo;
 
@@ -54,23 +57,6 @@ public class JenvSdkModel {
         this.canonicalPath = canonicalPath;
     }
 
-//    public boolean isBelongIdea() {
-//        return belongIdea;
-//    }
-//
-//    public void setBelongIdea(boolean belongIdea) {
-//        this.belongIdea = belongIdea;
-//    }
-//
-//    public boolean isBelongJenv() {
-//        return belongJenv;
-//    }
-//
-//    public void setBelongJenv(boolean belongJenv) {
-//        this.belongJenv = belongJenv;
-//    }
-
-
     public JenvJdkExistsType getExistsType() {
         return existsType;
     }
@@ -86,4 +72,5 @@ public class JenvSdkModel {
     public void setIdeaJdkInfo(Sdk ideaJdkInfo) {
         this.ideaJdkInfo = ideaJdkInfo;
     }
+
 }

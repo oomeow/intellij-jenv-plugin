@@ -4,7 +4,7 @@ import com.example.jenv.util.JenvVersionParser;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ProjectJenvState {
+public class JenvState {
     private boolean jenvInstalled;
     private boolean javaInstalled;
     private boolean projectJenvExists;
@@ -96,7 +96,7 @@ public class ProjectJenvState {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        ProjectJenvState that = (ProjectJenvState) o;
+        JenvState that = (JenvState) o;
         return new EqualsBuilder()
                 .append(jenvInstalled, that.jenvInstalled)
                 .append(javaInstalled, that.javaInstalled)

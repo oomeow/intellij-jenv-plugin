@@ -1,8 +1,7 @@
 package com.example.jenv.dialog;
 
 import com.example.jenv.JenvHelper;
-import com.example.jenv.config.ProjectJenvState;
-import com.example.jenv.service.JenvService;
+import com.example.jenv.config.JenvState;
 import com.example.jenv.service.JenvStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -49,11 +48,11 @@ public class JenvSelectDialog extends JDialog {
     }
 
     private void onOK() {
-        JenvStateService jenvStateService = project.getService(JenvStateService.class);
-        ProjectJenvState state = Objects.requireNonNull(jenvStateService.getState());
+        JenvStateService jenvStateService = JenvStateService.getInstance(project);
+        JenvState state = Objects.requireNonNull(jenvStateService.getState());
         state.setCurrentJavaVersion(jdkVersion);
         state.setFileHasChange(false);
-        JenvService.getInstance().changeJenvJdkWithNotification(project, jdkVersion, state);
+        JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkVersion);
         dispose();
     }
 
@@ -70,7 +69,7 @@ public class JenvSelectDialog extends JDialog {
         comboBox_other = new ComboBox<>(notJenvJdkArr);
 
         // Components status init
-        ProjectJenvState state = project.getService(JenvStateService.class).getState();
+        JenvState state = JenvStateService.getInstance(project).getState();
         jdkVersion = state.getCurrentJavaVersion();
         boolean jdkExists = JenvHelper.checkIdeaJdkExistsByVersion(jdkVersion);
         if (jdkExists) {

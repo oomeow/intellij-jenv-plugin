@@ -35,7 +35,7 @@ public class JenvVersionParser {
             int firstVer = Integer.parseInt(parts[0]);
             int majorVersion = firstVer == 1 && parts.length > 1 ? Integer.parseInt(parts[1]) : firstVer;
             return String.valueOf(majorVersion);
-        } catch (NumberFormatException var3) {
+        } catch (NumberFormatException e) {
             return "";
         }
     }

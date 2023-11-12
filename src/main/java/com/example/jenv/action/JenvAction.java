@@ -1,6 +1,6 @@
 package com.example.jenv.action;
 
-import com.example.jenv.config.ProjectJenvState;
+import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.DialogMessage;
 import com.example.jenv.dialog.DefaultDialog;
 import com.example.jenv.dialog.JenvSelectDialog;
@@ -17,8 +17,8 @@ public class JenvAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = Objects.requireNonNull(event.getProject());
-        JenvStateService jenvStateService = project.getService(JenvStateService.class);
-        ProjectJenvState state = jenvStateService.getState();
+        JenvStateService jenvStateService = JenvStateService.getInstance(project);
+        JenvState state = jenvStateService.getState();
         if (state.isProjectOpened()) {
             if (!state.isJenvInstalled()) {
                 new DefaultDialog(DialogMessage.JENV_NOT_INSTALL, project).show();
