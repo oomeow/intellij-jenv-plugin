@@ -1,6 +1,8 @@
 package com.example.jenv.util;
 
 import com.example.jenv.constant.JenvConstants;
+import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.model.JenvJdkModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -24,6 +26,31 @@ public class JenvUtils {
             }
         }
         return files;
+    }
+
+    public static boolean checkIsJenv(JenvJdkModel jenvJdkModel) {
+        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JenvJdkExistsType.Jenv) || existsType.equals(JenvJdkExistsType.OnlyNameNotMatch);
+    }
+
+    public static boolean checkIsIdea(JenvJdkModel jenvJdkModel) {
+        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+        return !existsType.equals(JenvJdkExistsType.Jenv);
+    }
+
+    public static boolean checkIsIdeaAndIsJenv(JenvJdkModel jenvJdkModel) {
+        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JenvJdkExistsType.OnlyNameNotMatch) || existsType.equals(JenvJdkExistsType.Both);
+    }
+
+    public static boolean checkIsBoth(JenvJdkModel jenvJdkModel) {
+        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JenvJdkExistsType.Both);
+    }
+
+    public static boolean checkIsIdeaAndNotJenv(JenvJdkModel jenvJdkModel) {
+        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JenvJdkExistsType.Idea) || existsType.equals(JenvJdkExistsType.OnlyMajorVersionMatch);
     }
 
 }

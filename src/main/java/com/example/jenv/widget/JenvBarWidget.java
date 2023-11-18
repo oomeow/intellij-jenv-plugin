@@ -2,14 +2,16 @@ package com.example.jenv.widget;
 
 import com.example.jenv.action.JenvJdkModelAction;
 import com.example.jenv.icons.JenvIcons;
-import com.example.jenv.model.JenvSdkModel;
+import com.example.jenv.model.JenvJdkModel;
 import com.example.jenv.service.JenvJdkTableService;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdeBundle;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -31,16 +33,20 @@ import java.util.List;
 
 public class JenvBarWidget extends TextPanel.WithIconAndArrows implements CustomStatusBarWidget {
 
-    private final Project project;
-    //    private boolean isLoadingJenv;
+    private final @NotNull Project project;
     public static final String JENV_STATUS_BAR_ID = "Jenv.Widget";
-    private static final String JENV_STATUS_BAR_DISPLAY_NAME = "Jenv";
+    public static final String JENV_STATUS_BAR_DISPLAY_NAME = "Jenv";
 
-    public JenvBarWidget(Project project) {
+    public JenvBarWidget(@NotNull Project project) {
         this.project = project;
-        setIcon(JenvIcons.JENV_JDK);
-        String name = ProjectRootManager.getInstance(project).getProjectSdk().getName();
-        setText(name);
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            setIcon(JenvIcons.JENV_JDK);
+            setText(projectSdk.getName());
+        } else {
+            setIcon(AllIcons.General.Error);
+            setText("No JDK");
+        }
         setToolTipText("Jenv");
     }
 
@@ -54,11 +60,12 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         if (project.isDisposed()) {
             return;
         }
-        String projectJdkName = ProjectRootManager.getInstance(project).getProjectSdk().getName();
         ClickListener clickListener = new ClickListener() {
             @Override
             public boolean onClick(@NotNull MouseEvent event, int clickCount) {
                 Component component = event.getComponent();
+                Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+                String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
                 JBPopup popup = getPopup(projectJdkName, dataContext);
                 Dimension dimension = popup.getContent().getPreferredSize();
@@ -68,13 +75,35 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
             }
         };
         clickListener.installOn(this, true);
-        statusBar.updateWidget(JENV_STATUS_BAR_ID);
-        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> {
-            System.out.println("Status bar change");
-            String jdkName = ProjectRootManager.getInstance(project).getProjectSdk().getName();
-            setText(jdkName);
-            statusBar.updateWidget(JENV_STATUS_BAR_ID);
+        project.getMessageBus().connect().subscribe(ProjectJdkTable.JDK_TABLE_TOPIC, new ProjectJdkTable.Listener() {
+            @Override
+            public void jdkAdded(@NotNull Sdk jdk) {
+                updateStatusBar(statusBar);
+            }
+
+            @Override
+            public void jdkRemoved(@NotNull Sdk jdk) {
+                updateStatusBar(statusBar);
+            }
+
+            @Override
+            public void jdkNameChanged(@NotNull Sdk jdk, @NotNull String previousName) {
+                updateStatusBar(statusBar);
+            }
         });
+        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> updateStatusBar(statusBar));
+    }
+
+    private void updateStatusBar(@NotNull StatusBar statusBar) {
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            setIcon(JenvIcons.JENV_JDK);
+            setText(projectSdk.getName());
+        } else {
+            setIcon(AllIcons.General.Error);
+            setText("No JDK");
+        }
+        statusBar.updateWidget(JENV_STATUS_BAR_ID);
     }
 
     @Override
@@ -87,40 +116,9 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         return JenvIcons.JENV_JDK;
     }
 
-    private ListPopup getPopup(String projectJdkName, DataContext dataContext) {
-//        List<Action> actions = getActions()
-        DefaultActionGroup actions = new DefaultActionGroup();
-        List<JenvSdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
-        if (!allJenvJdks.isEmpty()) {
-            actions.addSeparator("Jenv");
-            if (allJenvJdks.size() > 5) {
-                for (int i = 0; i < allJenvJdks.size(); i++) {
-                    if (i < 5) {
-                        actions.add(new JenvJdkModelAction(allJenvJdks.get(i)));
-                    }
-                }
-                DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> IdeBundle.message("action.text.more"));
-                actions.add(more);
-                for (JenvSdkModel jenvJdk : allJenvJdks) {
-                    more.add(new JenvJdkModelAction(jenvJdk));
-                }
-            }
-        }
-        List<JenvSdkModel> jenvJdksInIdea = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
-        if (!jenvJdksInIdea.isEmpty()) {
-            actions.addSeparator("Idea");
-            for (JenvSdkModel jenvSdkModel : jenvJdksInIdea) {
-                actions.add(new JenvJdkModelAction(jenvSdkModel));
-            }
-        }
-        List<JenvSdkModel> notJenvJdksInIdea = JenvJdkTableService.getInstance().getJdksInIdeaAndNotInJenv();
-        if (!notJenvJdksInIdea.isEmpty()) {
-//            actions.addSeparator("Idea Not Jenv");
-            for (JenvSdkModel jenvSdkModel : notJenvJdksInIdea) {
-                actions.add(new JenvJdkModelAction(jenvSdkModel));
-            }
-        }
-        ListPopup popup = JBPopupFactory.getInstance()
+    private ListPopup getPopup(String currentJdkName, DataContext dataContext) {
+        DefaultActionGroup actions = getActions(currentJdkName);
+        return JBPopupFactory.getInstance()
                 .createActionGroupPopup(
                         JenvBarWidget.JENV_STATUS_BAR_DISPLAY_NAME,
                         actions,
@@ -129,8 +127,57 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                         false,
                         ActionPlaces.POPUP
                 );
-        popup.setAdText("Version 0.0.1", SwingConstants.CENTER);
-        return popup;
+    }
+
+    @NotNull
+    private static DefaultActionGroup getActions(String currentJdkName) {
+        DefaultActionGroup actions = new DefaultActionGroup();
+        actions.add(new DumbAwareAction("Refresh", "", AllIcons.Actions.Refresh) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                JenvJdkTableService.getInstance().refreshJenvJdks();
+            }
+        });
+        actions.add(new AnAction("Add All", "Add all Jenv jdks to IDEA", AllIcons.Actions.AddFile) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
+            }
+        });
+        actions.addSeparator();
+        List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
+        actions.addSeparator("Jenv");
+        createActionWithMore(actions, allJenvJdks, currentJdkName, 5);
+        actions.addSeparator("Idea");
+        List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndNotInJenv();
+        createActionWithMore(actions, jdksInIdeaAndInJenv, currentJdkName, 3);
+        return actions;
+    }
+
+    private static void createActionWithMore(DefaultActionGroup actions, @NotNull List<JenvJdkModel> listData, String currentJdkName, int limit) {
+        int size = listData.size();
+        if (size == 0) {
+            return;
+        }
+        boolean needMore = size > limit;
+        for (int i = 0; i < size; i++) {
+            if (i < limit) {
+                JenvJdkModel jenvJdkModel = listData.get(i);
+                boolean isCurrentJdk = jenvJdkModel.getName().equals(currentJdkName);
+                JenvJdkModelAction action = new JenvJdkModelAction(jenvJdkModel, isCurrentJdk);
+                actions.add(action);
+            }
+        }
+        if (needMore) {
+            DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> IdeBundle.message("action.text.more"));
+            for (int i = limit; i < size; i++) {
+                JenvJdkModel jenvJdkModel = listData.get(i);
+                boolean isCurrentJdk = jenvJdkModel.getName().equals(currentJdkName);
+                JenvJdkModelAction action = new JenvJdkModelAction(jenvJdkModel, isCurrentJdk);
+                more.add(action);
+            }
+            actions.add(more);
+        }
     }
 
     @Override

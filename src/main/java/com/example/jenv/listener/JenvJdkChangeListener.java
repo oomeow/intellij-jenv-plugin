@@ -1,22 +1,24 @@
 package com.example.jenv.listener;
 
+import com.example.jenv.service.JenvJdkTableService;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import org.jetbrains.annotations.NotNull;
 
-public class JenvJdkAddListener implements ProjectJdkTable.Listener {
+public class JenvJdkChangeListener implements ProjectJdkTable.Listener {
+
     @Override
     public void jdkAdded(@NotNull Sdk jdk) {
-        System.out.println("Add Jdk ............" + jdk.getName());
+        JenvJdkTableService.getInstance().refreshJenvJdks();
     }
 
     @Override
     public void jdkRemoved(@NotNull Sdk jdk) {
-        System.out.println("Removed Jdk ............" + jdk.getName());
+        JenvJdkTableService.getInstance().removeFromJenvJdks(jdk);
     }
 
     @Override
     public void jdkNameChanged(@NotNull Sdk jdk, @NotNull String previousName) {
-        System.out.println("Rename Jdk ..............." + previousName);
+        JenvJdkTableService.getInstance().changeJenvJdkName(jdk, previousName);
     }
 }

@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.example</id>
     <name>Jenv</name>
-    <vendor>Damian Johnson</vendor>
+    <vendor>JokingAboutLife</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
@@ -15,19 +15,23 @@
         <postStartupActivity implementation="com.example.jenv.activity.JenvProjectStartupActivity"/>
         <statusBarWidgetFactory id="Jenv.Widget" order="first"
                                 implementation="com.example.jenv.widget.JenvBarWidgetFactory"/>
+        <notificationGroup id="Jenv" displayType="BALLOON" isLogByDefault="true"/>
     </extensions>
 
     <applicationListeners>
         <listener class="com.example.jenv.listener.JenvFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
-        <listener class="com.example.jenv.listener.JenvJdkAddListener"
-                  topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </applicationListeners>
 
+    <projectListeners>
+        <listener class="com.example.jenv.listener.JenvJdkChangeListener"
+                  topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
+    </projectListeners>
+
     <actions>
-        <action id="com.example.jenv.action.JenvAction" class="com.example.jenv.action.JenvAction" text="Jenv"
-                description="Jenv action">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </action>
+<!--        <action id="com.example.jenv.action.JenvAction" class="com.example.jenv.action.JenvAction" text="Jenv"-->
+<!--                description="Jenv action">-->
+<!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
+<!--        </action>-->
     </actions>
 </idea-plugin>

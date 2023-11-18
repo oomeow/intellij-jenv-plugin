@@ -4,7 +4,7 @@ import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.JenvConstants;
 import com.example.jenv.service.JenvStateService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectLocator;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class JenvFileChangeListener implements BulkFileListener {
-
 
     @Override
     public void before(@NotNull List<? extends @NotNull VFileEvent> events) {
@@ -36,7 +35,7 @@ public class JenvFileChangeListener implements BulkFileListener {
                 }
                 // get the project which include the jenv version file
                 VirtualFile jenvFile = Objects.requireNonNull(changeEvent.getFile());
-                Project guessProject = ProjectLocator.getInstance().guessProjectForFile(jenvFile);
+                Project guessProject = ProjectUtil.guessProjectForFile(jenvFile);
                 if (guessProject == null) {
                     continue;
                 }
@@ -56,7 +55,7 @@ public class JenvFileChangeListener implements BulkFileListener {
             JenvState state = JenvStateService.getInstance(currentProject).getState();
             String jdkVersion = null;
             try {
-                jdkVersion = new String(Objects.requireNonNull(fileContentChangeEvent.getFile()).contentsToByteArray()).trim();
+                jdkVersion = new String(fileContentChangeEvent.getFile().contentsToByteArray()).trim();
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }

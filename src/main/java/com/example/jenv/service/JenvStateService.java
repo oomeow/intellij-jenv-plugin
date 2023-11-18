@@ -1,20 +1,23 @@
 package com.example.jenv.service;
 
 import com.example.jenv.JenvBundle;
-import com.example.jenv.JenvHelper;
 import com.example.jenv.config.JenvState;
-import com.example.jenv.constant.JenvConstants;
-import com.example.jenv.constant.NotifyMessage;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationAction;
-import com.intellij.notification.NotificationType;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.model.JenvJdkModel;
+import com.example.jenv.util.JenvNotifications;
+import com.example.jenv.util.JenvUtils;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 public class JenvStateService {
     private final Project project;
@@ -33,43 +36,73 @@ public class JenvStateService {
         return state;
     }
 
-    public void changeJenvJdkWithNotification(String jdkVersion) {
-//        System.out.println("Jenv First Version Changed........................");
-        if (JenvHelper.checkIdeaJdkExistsByVersion(jdkVersion)) {
-            if (!JenvHelper.checkIsJenvJdk(jdkVersion) && state.isShowNotJenvJdkNotification()) {
-                // use resource bundle to format message
-                String title = "Jenv warning";
-                String subtitle = "Not Jenv JDK";
-                String content = JenvBundle.message("notification.content.jdk.not.jenv", jdkVersion);
-                NotifyMessage.NOT_JENV_JDK.setContent(content);
-
-                Notification warnNotification = new Notification(JenvConstants.NOTIFICATION_GROUP_ID, title, content, NotificationType.WARNING);
-                warnNotification.setSubtitle(subtitle);
-                warnNotification.addAction(new NotificationAction("Don't show again") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        if (e.getProject() != null) {
-//                            JenvState projectJenvState = JenvStateService.getInstance(e.getProject()).getState();
-                            state.setShowNotJenvJdkNotification(false);
-                            notification.expire();
-                        }
-                    }
-                });
-                warnNotification.notify(project);
+    public void changeJenvJdkWithNotification(String jdkName) {
+        JenvJdkTableService instance = JenvJdkTableService.getInstance();
+        JenvJdkModel jenvJdkModel = instance.findJenvJdkByName(jdkName, true);
+        if (jenvJdkModel != null) {
+            JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+            if (JenvUtils.checkIsIdeaAndNotJenv(jenvJdkModel)) {
+                if (existsType.equals(JenvJdkExistsType.OnlyMajorVersionMatch)) {
+                    String title = JenvBundle.message("notification.jdk.major.match.title");
+                    String content = JenvBundle.message("notification.jdk.major.match.content");
+                    JenvNotifications.showWarnNotification(title, content, project, true);
+                    // todo: change .java-version file
+                    changeJenvVersionFile();
+                } else {
+                    // use resource bundle to format message
+                    String title = JenvBundle.message("notification.jdk.not.jenv.title");
+                    String content = JenvBundle.message("notification.jdk.not.jenv.content", jdkName);
+                    JenvNotifications.showWarnNotification(title, content, project, true);
+                }
+            } else {
+                if (existsType.equals(JenvJdkExistsType.OnlyNameNotMatch)) {
+                    String title = JenvBundle.message("notification.jdk.name.not.match.title");
+                    String content = JenvBundle.message("notification.jdk.name.not.match.content", jdkName);
+                    JenvNotifications.showWarnNotification(title, content, project, true);
+                    // todo: show dialog to rename jdk name
+                }
             }
-            state.setCurrentJavaVersion(jdkVersion);
-            Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkVersion);
+            state.setCurrentJavaVersion(jdkName);
+            Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkName);
             Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
             if (jdk != null && jdk != projectSdk) {
                 SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
             }
         } else {
-            String title = "JDK warning";
-            String subtitle = "JDK not found";
-            String content = JenvBundle.message("notification.content.jdk.not.found", jdkVersion);
-            Notification errNotification = new Notification(JenvConstants.NOTIFICATION_GROUP_ID, title, content, NotificationType.ERROR);
-            errNotification.setSubtitle(subtitle);
-            errNotification.notify(project);
+            String title = JenvBundle.message("notification.jdk.not.found.title");
+            String content = JenvBundle.message("notification.jdk.not.found.content", jdkName);
+            JenvNotifications.showErrorNotification(title, content, project, true);
+        }
+    }
+
+    public void changeJenvVersionFile() {
+        if (!state.isProjectJenvExists()) {
+            return;
+        }
+        Sdk changedJdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (changedJdk == null) {
+            return;
+        }
+        String changedJdkName = changedJdk.getName();
+        JenvStateService stateService = JenvStateService.getInstance(project);
+        JenvState projectState = stateService.getState();
+        if (projectState.isFileHasChange()) {
+            return;
+        }
+        JenvJdkTableService instance = JenvJdkTableService.getInstance();
+        JenvJdkModel jenvJdkModel = instance.findJenvJdkByName(changedJdkName, true);
+        if (JenvUtils.checkIsBoth(jenvJdkModel)) {
+            projectState.setCurrentJavaVersion(changedJdkName);
+            VirtualFile fileByNioPath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectState.getProjectJenvFilePath()));
+            if (fileByNioPath != null && fileByNioPath.exists()) {
+                ApplicationManager.getApplication().runWriteAction(() -> {
+                    try {
+                        fileByNioPath.setBinaryContent(changedJdkName.getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
+                    }
+                });
+            }
         }
     }
 }

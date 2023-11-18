@@ -2,7 +2,6 @@ package com.example.jenv;
 
 import com.example.jenv.constant.JenvConstants;
 import com.intellij.DynamicBundle;
-import kotlin.jvm.JvmStatic;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.util.function.Supplier;
@@ -21,6 +20,6 @@ public class JenvBundle extends DynamicBundle {
     }
 
     public static Supplier<String> messagePointer(@PropertyKey(resourceBundle = JenvConstants.BUNDLE) String key, Object... params) {
-       return INSTANCE.getLazyMessage(key, params);
+        return INSTANCE.getLazyMessage(key, params);
     }
 }

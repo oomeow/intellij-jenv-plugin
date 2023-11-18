@@ -1,9 +1,10 @@
 package com.example.jenv.service;
 
-import com.example.jenv.JenvHelper;
 import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.JenvConstants;
-import com.intellij.ide.util.PropertiesComponent;
+import com.example.jenv.util.JenvNotifications;
+import com.example.jenv.util.JenvUtils;
+import com.example.jenv.widget.JenvBarWidgetFactory;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
@@ -12,45 +13,44 @@ import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import org.apache.commons.collections.CollectionUtils;
+import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 
 public class JenvService {
 
+    private boolean isJenvInstalled;
+
+    public boolean isJenvInstalled() {
+        return isJenvInstalled;
+    }
+
     public static JenvService getInstance() {
-        //
-        PropertiesComponent.getInstance();
         return ApplicationManager.getApplication().getService(JenvService.class);
     }
 
     public void initProject(Project project) {
-        VirtualFile jenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(JenvConstants.JENV_DIR));
-        JenvStateService jenvStateService = JenvStateService.getInstance(project);
-        JenvState state = Objects.requireNonNull(jenvStateService.getState());
-
-        if (jenvFile != null && jenvFile.exists()) {
-            state.setJenvInstalled(true);
+        if (!isJenvInstalled) {
+            if (JenvUtils.checkJenvInstalled()) {
+                this.isJenvInstalled = true;
+            } else {
+                String title = "Jenv not installed";
+                String content = "Jenv is not installed in this system, please install Jenv before using this plugin";
+                JenvNotifications.showErrorNotification(title, content, project, false);
+                return;
+            }
         }
-        if (CollectionUtils.isNotEmpty(JenvHelper.getAllIdeaJdkVersionList())) {
-            state.setJavaInstalled(true);
-        }
-        JenvHelper.refreshAllJenvJdkInfo();
-
+        JenvState state = JenvStateService.getInstance(project).getState();
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));
         if (projectJenvFile != null && projectJenvFile.exists()) {
             state.setProjectJenvExists(true);
             state.setProjectJenvFilePath(projectJenvFile.getPath());
             try {
-                Path path = Paths.get(projectJenvFile.getPath());
-                String jdkVersion = Files.readString(path).trim();
-                state.setCurrentJavaVersion(jdkVersion);
-                Sdk jdk = ProjectJdkTable.getInstance().findJdk(state.getCurrentJavaVersion());
+                String jdkVersion = new String(projectJenvFile.contentsToByteArray(), StandardCharsets.UTF_8).trim();
+                Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkVersion);
                 if (jdk != null) {
                     Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                     if (projectSdk == null || projectSdk != jdk) {
@@ -58,11 +58,11 @@ public class JenvService {
                     }
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                JenvNotifications.showErrorNotification("Init project Failed", e.getMessage(), project, false);
             }
         }
-        state.setShowNotJenvJdkNotification(true);
-        state.setProjectOpened(true);
+        StatusBarWidgetsManager service = project.getService(StatusBarWidgetsManager.class);
+        service.updateWidget(JenvBarWidgetFactory.class);
     }
 
 

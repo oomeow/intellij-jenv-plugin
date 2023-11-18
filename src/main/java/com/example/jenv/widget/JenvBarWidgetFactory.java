@@ -1,5 +1,6 @@
 package com.example.jenv.widget;
 
+import com.example.jenv.service.JenvService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.NlsContexts;
@@ -17,12 +18,12 @@ public class JenvBarWidgetFactory implements StatusBarWidgetFactory {
 
     @Override
     public @NotNull @NlsContexts.ConfigurableName String getDisplayName() {
-        return "Jenv";
+        return JenvBarWidget.JENV_STATUS_BAR_DISPLAY_NAME;
     }
 
     @Override
     public boolean isAvailable(@NotNull Project project) {
-        return true;
+        return JenvService.getInstance().isJenvInstalled();
     }
 
     @Override

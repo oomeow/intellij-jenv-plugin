@@ -1,14 +1,11 @@
 package com.example.jenv.model;
 
 import com.example.jenv.constant.JenvJdkExistsType;
-import com.example.jenv.util.JenvUtils;
-import com.example.jenv.util.JenvVersionParser;
 import com.intellij.openapi.projectRoots.Sdk;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-
-public class JenvSdkModel {
+public class JenvJdkModel implements Comparable<JenvJdkModel> {
     private String name;
     private String version;
     private String majorVersion;
@@ -73,4 +70,8 @@ public class JenvSdkModel {
         this.ideaJdkInfo = ideaJdkInfo;
     }
 
+    @Override
+    public int compareTo(@NotNull JenvJdkModel o) {
+        return StringUtils.compare(this.name, o.getName());
+    }
 }

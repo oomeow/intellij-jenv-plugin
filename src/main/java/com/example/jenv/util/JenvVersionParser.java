@@ -26,12 +26,8 @@ public class JenvVersionParser {
 
     public static String tryParserAndGetMajorVersion(String jdkVersion) {
         String jdkVersionInfo = tryParser(jdkVersion);
-        return parseDotted(jdkVersionInfo);
-    }
-
-    private static String parseDotted(String javaVersion) {
         try {
-            String[] parts = javaVersion.split("[._]");
+            String[] parts = jdkVersionInfo.split("[._]");
             int firstVer = Integer.parseInt(parts[0]);
             int majorVersion = firstVer == 1 && parts.length > 1 ? Integer.parseInt(parts[1]) : firstVer;
             return String.valueOf(majorVersion);
