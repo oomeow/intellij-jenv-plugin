@@ -8,13 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.indexing.FileBasedIndexImpl;
-import com.intellij.util.indexing.ID;
-import com.intellij.util.indexing.UnindexedFilesUpdater;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 public class JenvJdkModelAction extends DumbAwareAction {
 

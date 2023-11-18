@@ -3,7 +3,6 @@ package com.example.jenv.widget;
 import com.example.jenv.service.JenvService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.StatusBarWidgetFactory;
@@ -17,7 +16,7 @@ public class JenvBarWidgetFactory implements StatusBarWidgetFactory {
     }
 
     @Override
-    public @NotNull @NlsContexts.ConfigurableName String getDisplayName() {
+    public @NotNull String getDisplayName() {
         return JenvBarWidget.JENV_STATUS_BAR_DISPLAY_NAME;
     }
 
