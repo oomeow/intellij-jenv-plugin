@@ -22,8 +22,8 @@ This plugin is expansion of the project [madplay/Mad-jEnv](https://github.com/ma
 <!-- Plugin description -->
 
 This is IntelliJ plugin for [Jenv](https://www.jenv.be) - **A Java Environment Manager**
-- Listening the change of project Jenv version file (`.java-version`), it will change the project jdk.
-- Click `Jenv` Action in the `Tools` menu (`Tools | Jenv`), select jdk what you want, it will change the project jdk
+- Listening the change of project Jenv version file (`.java-version`) and change the project jdk.
+- Use StatusBar to change project sdk, add some options, like refresh 、 add all Jenv Jdk option
 
 <!-- Plugin description end -->
 
