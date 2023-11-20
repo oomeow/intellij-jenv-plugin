@@ -9,7 +9,7 @@ public class JenvJdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
     public void jdkAdded(@NotNull Sdk jdk) {
-        JenvJdkTableService.getInstance().refreshJenvJdks();
+        JenvJdkTableService.getInstance().addToJenvJdks(jdk);
     }
 
     @Override

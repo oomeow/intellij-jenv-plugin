@@ -1,6 +1,7 @@
 package com.example.jenv.model;
 
 import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.util.JenvVersionParser;
 import com.intellij.openapi.projectRoots.Sdk;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -8,9 +9,11 @@ import org.jetbrains.annotations.NotNull;
 public class JenvJdkModel implements Comparable<JenvJdkModel> {
     private String name;
     private String version;
+    private String shortVersion;
     private String majorVersion;
     private String homePath;
     private String canonicalPath;
+    // idea jdk need
     private JenvJdkExistsType existsType;
     private Sdk ideaJdkInfo;
 
@@ -28,12 +31,24 @@ public class JenvJdkModel implements Comparable<JenvJdkModel> {
 
     public void setVersion(String version) {
         this.version = version;
+        this.shortVersion = JenvVersionParser.tryParseAndGetShortVersion(version);
+        this.majorVersion = JenvVersionParser.tryParseAndGetMajorVersion(version);
+    }
+
+    public String getShortVersion() {
+        return shortVersion;
+    }
+
+    @Deprecated
+    public void setShortVersion(String shortVersion) {
+        this.shortVersion = shortVersion;
     }
 
     public String getMajorVersion() {
         return majorVersion;
     }
 
+    @Deprecated
     public void setMajorVersion(String majorVersion) {
         this.majorVersion = majorVersion;
     }

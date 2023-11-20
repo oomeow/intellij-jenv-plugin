@@ -3,6 +3,7 @@ package com.example.jenv.listener;
 import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.JenvConstants;
 import com.example.jenv.service.JenvStateService;
+import com.example.jenv.util.JenvNotifications;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -41,26 +42,25 @@ public class JenvFileChangeListener implements BulkFileListener {
                 }
                 if (StringUtils.equals(guessProject.getBasePath(), jenvFile.getParent().getPath())) {
                     JenvState guessState = JenvStateService.getInstance(guessProject).getState();
-                    if (!guessState.isFileHasChange()) {
+                    if (!guessState.isFileChanged() && !guessState.isNeedToChangeFile()) {
                         isJenvFileChange = true;
                         currentProject = guessProject;
                         fileContentChangeEvent = changeEvent;
-                        guessState.setFileHasChange(true);
+                        guessState.setFileChanged(true);
                         break;
                     }
                 }
             }
         }
         if (isJenvFileChange) {
-            JenvState state = JenvStateService.getInstance(currentProject).getState();
-            String jdkVersion = null;
             try {
-                jdkVersion = new String(fileContentChangeEvent.getFile().contentsToByteArray()).trim();
+                String jdkVersion = new String(fileContentChangeEvent.getFile().contentsToByteArray()).trim();
+                JenvStateService.getInstance(currentProject).changeJenvJdkWithNotification(jdkVersion);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                JenvNotifications.showErrorNotification("Jenv File Changed, but read content failed", e.getMessage(), currentProject, false);
+            } finally {
+                JenvStateService.getInstance(currentProject).getState().setFileChanged(false);
             }
-            JenvStateService.getInstance(currentProject).changeJenvJdkWithNotification(jdkVersion);
-            state.setFileHasChange(false);
         }
     }
 }

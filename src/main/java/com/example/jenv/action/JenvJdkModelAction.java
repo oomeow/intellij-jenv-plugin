@@ -31,9 +31,9 @@ public class JenvJdkModelAction extends DumbAwareAction {
         Project project = e.getProject();
         if (project != null) {
             JenvState state = JenvStateService.getInstance(project).getState();
-            state.setFileHasChange(false);
-            state.setCurrentJavaVersion(jenvJdkModel.getVersion());
+            state.setNeedToChangeFile(true);
             JenvStateService.getInstance(project).changeJenvJdkWithNotification(jenvJdkModel.getName());
         }
     }
+
 }

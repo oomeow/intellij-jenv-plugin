@@ -65,15 +65,12 @@ public class JenvJdkTableService {
         return otherJdks;
     }
 
-    public JenvJdkModel findJenvJdkByName(String jdkName, boolean jdkInIdea) {
+    public JenvJdkModel findJenvJdkByName(String jdkName) {
         JenvJdkModel jenvJdkModel = null;
-        List<JenvJdkModel> list = myIdeaJdks;
-        if (!jdkInIdea) {
-            list = myJenvJdks;
-        }
-        for (JenvJdkModel myIdeaJdk : list) {
+        for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
             if (myIdeaJdk.getName().equals(jdkName)) {
                 jenvJdkModel = myIdeaJdk;
+                break;
             }
         }
         return jenvJdkModel;
@@ -82,12 +79,11 @@ public class JenvJdkTableService {
     @NotNull
     private JenvJdkModel createJenvJdkModel(Sdk jdk) {
         JenvJdkModel jenvJdkModel = new JenvJdkModel();
-        String majorVersion = JenvVersionParser.tryParserAndGetMajorVersion(jdk.getVersionString());
-        JenvJdkExistsType jenvJdkExistsType = getIdeaJdkExistsType(jdk, majorVersion);
-        jenvJdkModel.setExistsType(jenvJdkExistsType);
         jenvJdkModel.setName(jdk.getName());
-        jenvJdkModel.setVersion(JenvVersionParser.tryParser(jdk.getVersionString()));
-        jenvJdkModel.setMajorVersion(majorVersion);
+        String versionString = jdk.getVersionString();
+        jenvJdkModel.setVersion(JenvVersionParser.tryParse(versionString));
+        JenvJdkExistsType jenvJdkExistsType = getIdeaJdkExistsType(jdk, jenvJdkModel.getMajorVersion());
+        jenvJdkModel.setExistsType(jenvJdkExistsType);
         jenvJdkModel.setHomePath(jdk.getHomePath());
         jenvJdkModel.setIdeaJdkInfo(jdk);
         return jenvJdkModel;
@@ -112,7 +108,9 @@ public class JenvJdkTableService {
                 homePathMatch = true;
             }
             if (majorVersionMatch) {
-                jenvJdkExistsType = JenvJdkExistsType.OnlyMajorVersionMatch;
+                if (jenvJdkExistsType.equals(JenvJdkExistsType.Idea)) {
+                    jenvJdkExistsType = JenvJdkExistsType.OnlyMajorVersionMatch;
+                }
                 if (homePathMatch) {
                     if (nameMatch) {
                         jenvJdkExistsType = JenvJdkExistsType.Both;
@@ -160,32 +158,8 @@ public class JenvJdkTableService {
     }
 
     public void addToJenvJdks(Sdk jdk) {
-        boolean isJenv = false;
-        JenvJdkModel jenvJdkModel = null;
-        for (JenvJdkModel myJenvJdk : myJenvJdks) {
-            if (myJenvJdk.getName().equals(jdk.getName())) {
-                if (myJenvJdk.getHomePath().equals(jdk.getHomePath())) {
-                    isJenv = true;
-                    jenvJdkModel = myJenvJdk;
-                    break;
-                }
-                if (myJenvJdk.getCanonicalPath().equals(jdk.getHomePath())) {
-                    isJenv = true;
-                    jenvJdkModel = myJenvJdk;
-                    break;
-                }
-            }
-        }
-        if (isJenv) {
-            jenvJdkModel.setIdeaJdkInfo(jdk);
-        } else {
-            jenvJdkModel = createJenvJdkModel(jdk);
-            myIdeaJdks.add(jenvJdkModel);
-        }
-        for (JenvJdkModel myJenvJdk : myJenvJdks) {
-            JenvJdkExistsType jenvJdkExistsType = getJenvJdkExistsType(myJenvJdk);
-            myJenvJdk.setExistsType(jenvJdkExistsType);
-        }
+        JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
+        myIdeaJdks.add(jenvJdkModel);
         Collections.sort(myIdeaJdks);
     }
 
@@ -199,36 +173,18 @@ public class JenvJdkTableService {
         }
         if (currentIdeaJdk != null) {
             currentIdeaJdk.setName(jdk.getName());
-            currentIdeaJdk.setIdeaJdkInfo(jdk);
             JenvJdkExistsType jenvJdkExistsType = getIdeaJdkExistsType(jdk, currentIdeaJdk.getMajorVersion());
             currentIdeaJdk.setExistsType(jenvJdkExistsType);
         }
-        for (JenvJdkModel myJenvJdk : myJenvJdks) {
-            if (JenvUtils.checkIsIdea(myJenvJdk)) {
-                JenvJdkExistsType jenvJdkExistsType = getJenvJdkExistsType(myJenvJdk);
-                myJenvJdk.setExistsType(jenvJdkExistsType);
-            }
-        }
-        Collections.sort(myJenvJdks);
         Collections.sort(myIdeaJdks);
     }
 
     public void removeFromJenvJdks(Sdk jdk) {
         String name = jdk.getName();
-        List<JenvJdkModel> allIdeaAndJenvJdks = getJdksInIdeaAndInJenv();
-        for (JenvJdkModel ideaAndJenvJdk : allIdeaAndJenvJdks) {
-            if (name.equals(ideaAndJenvJdk.getName())) {
-                myIdeaJdks.remove(ideaAndJenvJdk);
+        for (JenvJdkModel jenvJdkModel : myIdeaJdks) {
+            if (name.equals(jenvJdkModel.getName())) {
+                myIdeaJdks.remove(jenvJdkModel);
                 break;
-            }
-        }
-        for (JenvJdkModel myJenvJdk : myJenvJdks) {
-            if (JenvUtils.checkIsIdea(myJenvJdk)) {
-                JenvJdkExistsType jenvJdkExistsType = getJenvJdkExistsType(myJenvJdk);
-                if (jenvJdkExistsType.equals(JenvJdkExistsType.Jenv)) {
-                    myJenvJdk.setIdeaJdkInfo(null);
-                }
-                myJenvJdk.setExistsType(jenvJdkExistsType);
             }
         }
     }
@@ -243,10 +199,8 @@ public class JenvJdkTableService {
                 jenvJdkModel.setExistsType(JenvJdkExistsType.Jenv);
                 jenvJdkModel.setName(jenvJdkVersionFile.getName());
                 String fullVersion = jenvJdkVersionFile.getName();
-                String digitVersion = JenvVersionParser.tryParser(fullVersion);
-                String majorVersion = JenvVersionParser.tryParserAndGetMajorVersion(fullVersion);
+                String digitVersion = JenvVersionParser.tryParse(fullVersion);
                 jenvJdkModel.setVersion(digitVersion);
-                jenvJdkModel.setMajorVersion(majorVersion);
                 jenvJdkModel.setHomePath(jenvJdkVersionFile.getPath());
                 jenvJdkModel.setCanonicalPath(jenvJdkVersionFile.getCanonicalPath());
             } catch (IOException e) {
@@ -261,60 +215,57 @@ public class JenvJdkTableService {
                 myIdeaJdks.add(jenvJdkModel);
             }
         }
-        for (JenvJdkModel myJenvJdk : myJenvJdks) {
-            JenvJdkExistsType jenvJdkExistsType = getJenvJdkExistsType(myJenvJdk);
-            myJenvJdk.setExistsType(jenvJdkExistsType);
-        }
         Collections.sort(myJenvJdks);
         Collections.sort(myIdeaJdks);
     }
 
     public void addAllJenvJdksToIdea(Project project) {
         List<Sdk> addJdkList = new ArrayList<>();
+        List<Sdk> updateJdkNameDialogList = new ArrayList<>();
+        List<JenvJdkModel> addNewJenvJdkList = new ArrayList<>();
         List<JenvJdkModel> addAfterUpdateJdkList = new ArrayList<>();
-        List<Sdk> updateJdkNameList = new ArrayList<>();
         for (JenvJdkModel jenvJdk : myJenvJdks) {
             String name = jenvJdk.getName();
-            if (JenvUtils.checkIsJenv(jenvJdk)) {
-                VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
-                if (homePath != null) {
-                    Sdk findJdk = ProjectJdkTable.getInstance().findJdk(name);
-                    if (findJdk != null && findJdk.getHomePath() != null && !findJdk.getHomePath().equals(jenvJdk.getHomePath())) {
-                        updateJdkNameList.add(findJdk);
-                        addAfterUpdateJdkList.add(jenvJdk);
-                    } else {
-                        ApplicationManager.getApplication().invokeAndWait(() -> {
-                            Sdk sdk = SdkConfigurationUtil.setupSdk(ProjectJdkTable.getInstance().getAllJdks(), homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, name);
-                            if (sdk != null) {
-                                addJdkList.add(sdk);
-                            }
-                        });
+            boolean exists = false;
+            boolean onlyNeedUpdate = false;
+            for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
+                if (myIdeaJdk.getHomePath().equals(jenvJdk.getHomePath()) || myIdeaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())) {
+                    if (myIdeaJdk.getName().equals(name)) {
+                        exists = true;
+                        onlyNeedUpdate = false;
+                        break;
                     }
+                    // todo: same home path, different name, only need to change jdk name
                 }
-            } else {
-                // maybe something to do
+                if (myIdeaJdk.getName().equals(name)) {
+                    onlyNeedUpdate = true;
+                    addAfterUpdateJdkList.add(jenvJdk);
+                    updateJdkNameDialogList.add(myIdeaJdk.getIdeaJdkInfo());
+                }
+            }
+            if (!exists && !onlyNeedUpdate) {
+                addNewJenvJdkList.add(jenvJdk);
             }
         }
         // jdk name update dialog
         boolean changeName = false;
-        if (!updateJdkNameList.isEmpty()) {
-            JdkRenameDialog jdkRenameDialog = new JdkRenameDialog(updateJdkNameList);
+        if (!updateJdkNameDialogList.isEmpty()) {
+            JdkRenameDialog jdkRenameDialog = new JdkRenameDialog(updateJdkNameDialogList);
             changeName = jdkRenameDialog.showAndGet();
         }
         boolean finalChangeName = changeName;
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Add Jenv JDK") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Add all Jenv JDK") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                int updateListSize = updateJdkNameList.size();
+                int updateListSize = updateJdkNameDialogList.size();
                 if (finalChangeName) {
                     for (int i = 0; i < updateListSize; i++) {
-                        Sdk sdk = updateJdkNameList.get(i);
+                        Sdk sdk = updateJdkNameDialogList.get(i);
                         String name = sdk.getName();
                         ProjectJdkImpl jdk = (ProjectJdkImpl) ProjectJdkTable.getInstance().findJdk(name);
                         if (jdk != null) {
-                            double fraction = (double) i / updateListSize * 0.5;
-                            indicator.setFraction(fraction);
-                            indicator.setText(name + " is renaming");
+                            indicator.setFraction((double) i / updateListSize);
+                            indicator.setText("Rename JDK name" + name + " to " + name + JenvConstants.JDK_RENAME_SUFFIX);
                             ProjectJdkImpl clone = jdk.clone();
                             String changeName = jdk.getName() + JenvConstants.JDK_RENAME_SUFFIX;
                             clone.setName(changeName);
@@ -323,13 +274,14 @@ public class JenvJdkTableService {
                                 for (JenvJdkModel jenvJdkModel : addAfterUpdateJdkList) {
                                     VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdkModel.getHomePath()));
                                     if (homePath != null) {
-                                        Sdk addUpdateJenvJdk = SdkConfigurationUtil.setupSdk(ProjectJdkTable.getInstance().getAllJdks(), homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdkModel.getName());
+                                        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+                                        Sdk addUpdateJenvJdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdkModel.getName());
                                         if (addUpdateJenvJdk != null) {
                                             addJdkList.add(addUpdateJenvJdk);
                                         }
                                     }
                                     try {
-                                        Thread.sleep(1000);
+                                        Thread.sleep(300);
                                     } catch (InterruptedException e) {
                                         throw new RuntimeException(e);
                                     }
@@ -338,14 +290,24 @@ public class JenvJdkTableService {
                         }
                     }
                 }
+                for (JenvJdkModel jenvJdkModel : addNewJenvJdkList) {
+                    VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdkModel.getHomePath()));
+                    if (homePath != null) {
+                        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+                        Sdk addJenvJdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdkModel.getName());
+                        if (addJenvJdk != null) {
+                            addJdkList.add(addJenvJdk);
+                        }
+                    }
+                }
                 int addListSize = addJdkList.size();
-                for (int i = 0; i < addListSize; i++) {
-                    Sdk newJdk = addJdkList.get(i);
-                    indicator.setFraction((double) i / addListSize * 0.5);
+                for (int j = 0; j < addListSize; j++) {
+                    Sdk newJdk = addJdkList.get(j);
+                    indicator.setFraction((double) j / addListSize);
                     indicator.setText("Add " + newJdk.getName());
                     ApplicationManager.getApplication().invokeAndWait(() -> SdkConfigurationUtil.addSdk(newJdk));
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(300);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

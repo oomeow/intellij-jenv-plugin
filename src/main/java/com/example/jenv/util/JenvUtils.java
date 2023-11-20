@@ -28,27 +28,27 @@ public class JenvUtils {
         return files;
     }
 
-    public static boolean checkIsJenv(JenvJdkModel jenvJdkModel) {
+    public static boolean checkIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
         return existsType.equals(JenvJdkExistsType.Jenv) || existsType.equals(JenvJdkExistsType.OnlyNameNotMatch);
     }
 
-    public static boolean checkIsIdea(JenvJdkModel jenvJdkModel) {
+    public static boolean checkIsIdea(@NotNull JenvJdkModel jenvJdkModel) {
         JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
         return !existsType.equals(JenvJdkExistsType.Jenv);
     }
 
-    public static boolean checkIsIdeaAndIsJenv(JenvJdkModel jenvJdkModel) {
+    public static boolean checkIsIdeaAndIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
         return existsType.equals(JenvJdkExistsType.OnlyNameNotMatch) || existsType.equals(JenvJdkExistsType.Both);
     }
 
-    public static boolean checkIsBoth(JenvJdkModel jenvJdkModel) {
+    public static boolean checkIsBoth(@NotNull JenvJdkModel jenvJdkModel) {
         JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
         return existsType.equals(JenvJdkExistsType.Both);
     }
 
-    public static boolean checkIsIdeaAndNotJenv(JenvJdkModel jenvJdkModel) {
+    public static boolean checkIsIdeaAndNotJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
         return existsType.equals(JenvJdkExistsType.Idea) || existsType.equals(JenvJdkExistsType.OnlyMajorVersionMatch);
     }

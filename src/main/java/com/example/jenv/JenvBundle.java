@@ -6,7 +6,6 @@ import org.jetbrains.annotations.PropertyKey;
 
 import java.util.function.Supplier;
 
-
 public class JenvBundle extends DynamicBundle {
 
     private static final JenvBundle INSTANCE = new JenvBundle();

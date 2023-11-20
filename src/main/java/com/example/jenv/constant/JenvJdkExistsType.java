@@ -1,16 +1,16 @@
 package com.example.jenv.constant;
 
-import com.example.jenv.icons.JenvIcons;
 import com.intellij.icons.AllIcons;
 
 import javax.swing.*;
 
 public enum JenvJdkExistsType {
-    Jenv("This jdk is only exists in Jenv", AllIcons.General.Error),
-    Idea("This jdk is exists in idea", JenvIcons.IDEA),
-    Both("This jdk is exists in idea and Jenv", null),
-    OnlyMajorVersionMatch("The major version of this jdk exists in Idea and Jenv, but this is not Jenv jdk", AllIcons.General.Warning),
-    OnlyNameNotMatch("The name of this jdk is exists in Idea and Jenv, but only name not match", AllIcons.General.Warning),
+    Jenv("This JDK is only exists in Jenv", null),
+    // The following belong to IDEA
+    Idea("This JDK is existing in idea", null),
+    Both("This JDK is existing in idea and Jenv", null),
+    OnlyMajorVersionMatch("The major version of this JDK is existing in Idea and Jenv, but this is not Jenv JDK", AllIcons.General.Warning),
+    OnlyNameNotMatch("The name of this JDK is existing in Idea and Jenv, but only name not match", AllIcons.General.Warning),
     ;
 
     private String description;

@@ -7,7 +7,8 @@ public class JenvState {
     private boolean projectJenvExists;
     private String projectJenvFilePath;
     private String currentJavaVersion;
-    private boolean fileHasChange;
+    private boolean fileChanged;
+    private boolean needToChangeFile;
 
     public boolean isProjectJenvExists() {
         return projectJenvExists;
@@ -25,20 +26,30 @@ public class JenvState {
         this.projectJenvFilePath = projectJenvFilePath;
     }
 
+    @Deprecated
     public String getCurrentJavaVersion() {
         return currentJavaVersion;
     }
 
+    @Deprecated
     public void setCurrentJavaVersion(String currentJavaVersion) {
         this.currentJavaVersion = currentJavaVersion;
     }
 
-    public boolean isFileHasChange() {
-        return fileHasChange;
+    public boolean isFileChanged() {
+        return fileChanged;
     }
 
-    public void setFileHasChange(boolean fileHasChange) {
-        this.fileHasChange = fileHasChange;
+    public void setFileChanged(boolean fileChanged) {
+        this.fileChanged = fileChanged;
+    }
+
+    public boolean isNeedToChangeFile() {
+        return needToChangeFile;
+    }
+
+    public void setNeedToChangeFile(boolean needToChangeFile) {
+        this.needToChangeFile = needToChangeFile;
     }
 
     @Override
@@ -52,6 +63,8 @@ public class JenvState {
                 .append(projectJenvExists, that.projectJenvExists)
                 .append(projectJenvFilePath, that.projectJenvFilePath)
                 .append(currentJavaVersion, that.currentJavaVersion)
+                .append(fileChanged, that.fileChanged)
+                .append(needToChangeFile, that.needToChangeFile)
                 .isEquals();
     }
 
@@ -61,6 +74,8 @@ public class JenvState {
                 .append(projectJenvExists)
                 .append(projectJenvFilePath)
                 .append(currentJavaVersion)
+                .append(fileChanged)
+                .append(needToChangeFile)
                 .toHashCode();
     }
 }

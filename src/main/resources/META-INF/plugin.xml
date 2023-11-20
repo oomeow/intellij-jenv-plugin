@@ -29,9 +29,9 @@
     </projectListeners>
 
     <actions>
-<!--        <action id="com.example.jenv.action.JenvAction" class="com.example.jenv.action.JenvAction" text="Jenv"-->
-<!--                description="Jenv action">-->
-<!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
-<!--        </action>-->
+        <!--        <action id="com.example.jenv.action.JenvAction" class="com.example.jenv.action.JenvAction" text="Jenv"-->
+        <!--                description="Jenv action">-->
+        <!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
+        <!--        </action>-->
     </actions>
 </idea-plugin>

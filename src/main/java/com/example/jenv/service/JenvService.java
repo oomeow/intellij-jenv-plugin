@@ -1,12 +1,15 @@
 package com.example.jenv.service;
 
+import com.example.jenv.JenvBundle;
 import com.example.jenv.config.JenvState;
 import com.example.jenv.constant.JenvConstants;
 import com.example.jenv.util.JenvNotifications;
 import com.example.jenv.util.JenvUtils;
+import com.example.jenv.util.JenvVersionParser;
 import com.example.jenv.widget.JenvBarWidgetFactory;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
@@ -36,8 +39,8 @@ public class JenvService {
             if (JenvUtils.checkJenvInstalled()) {
                 this.isJenvInstalled = true;
             } else {
-                String title = "Jenv not installed";
-                String content = "Jenv is not installed in this system, please install Jenv before using this plugin";
+                String title = JenvBundle.message("notification.jenv.not.installed.title");
+                String content = JenvBundle.message("notification.jenv.not.installed.content");
                 JenvNotifications.showErrorNotification(title, content, project, false);
                 return;
             }
@@ -56,6 +59,16 @@ public class JenvService {
                     if (projectSdk == null || projectSdk != jdk) {
                         SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
                     }
+                } else {
+                    Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+                    for (Sdk sdk : allJdks) {
+                        if (sdk.getSdkType() instanceof JavaSdkType) {
+                            String ideaShortVersion = JenvVersionParser.tryParseAndGetShortVersion(sdk.getVersionString());
+                            if (ideaShortVersion.equals(jdkVersion)) {
+                                SdkConfigurationUtil.setDirectoryProjectSdk(project, sdk);
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
                 JenvNotifications.showErrorNotification("Init project Failed", e.getMessage(), project, false);
@@ -64,6 +77,5 @@ public class JenvService {
         StatusBarWidgetsManager service = project.getService(StatusBarWidgetsManager.class);
         service.updateWidget(JenvBarWidgetFactory.class);
     }
-
 
 }
