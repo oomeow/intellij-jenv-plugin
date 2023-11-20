@@ -108,11 +108,6 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
     }
 
     @Override
-    public void dispose() {
-
-    }
-
-    @Override
     public @Nullable Icon getIcon() {
         return JenvIcons.JENV_JDK;
     }
@@ -191,5 +186,10 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
     @Override
     public JComponent getComponent() {
         return this;
+    }
+
+    @Override
+    public void dispose() {
+
     }
 }

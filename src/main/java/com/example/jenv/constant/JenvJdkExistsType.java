@@ -13,8 +13,8 @@ public enum JenvJdkExistsType {
     OnlyNameNotMatch("The name of this JDK is existing in Idea and Jenv, but only name not match", AllIcons.General.Warning),
     ;
 
-    private String description;
-    private Icon icon;
+    private final String description;
+    private final Icon icon;
 
     JenvJdkExistsType(String description, Icon icon) {
         this.description = description;
@@ -25,15 +25,8 @@ public enum JenvJdkExistsType {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Icon getIcon() {
         return icon;
     }
 
-    public void setIcon(Icon icon) {
-        this.icon = icon;
-    }
 }

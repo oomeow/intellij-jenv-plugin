@@ -34,7 +34,6 @@ public class JenvFileChangeListener implements BulkFileListener {
                 if (!changeEvent.getPath().endsWith(JenvConstants.VERSION_FILE)) {
                     continue;
                 }
-                // get the project which include the jenv version file
                 VirtualFile jenvFile = Objects.requireNonNull(changeEvent.getFile());
                 Project guessProject = ProjectUtil.guessProjectForFile(jenvFile);
                 if (guessProject == null) {
