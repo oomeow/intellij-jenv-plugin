@@ -3,7 +3,5 @@
 # idea-plugin-demo Changelog
 
 ## [Unreleased]
-### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
-### Next Plan
-- remove Jenv Select Dialog, add bottom tool, like IdeaVim. 
+- Listening the change of project Jenv version file (`.java-version`) and change the project jdk.
+- Use StatusBar to change project sdk, add some options, like refresh 、 add all Jenv Jdk option
