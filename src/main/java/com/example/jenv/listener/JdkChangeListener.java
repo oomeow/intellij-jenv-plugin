@@ -5,7 +5,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import org.jetbrains.annotations.NotNull;
 
-public class JenvJdkChangeListener implements ProjectJdkTable.Listener {
+public class JdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
     public void jdkAdded(@NotNull Sdk jdk) {

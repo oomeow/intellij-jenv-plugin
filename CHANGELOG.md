@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# idea-plugin-demo Changelog
+# idea-plugin-Jenv Changelog
 
 ## [Unreleased]
 - Listening the change of project Jenv version file (`.java-version`) and change the project jdk.

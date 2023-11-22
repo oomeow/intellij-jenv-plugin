@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class JenvFileChangeListener implements BulkFileListener {
+public class VersionFileChangeListener implements BulkFileListener {
 
     @Override
     public void before(@NotNull List<? extends @NotNull VFileEvent> events) {

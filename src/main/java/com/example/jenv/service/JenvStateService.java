@@ -2,7 +2,7 @@ package com.example.jenv.service;
 
 import com.example.jenv.JenvBundle;
 import com.example.jenv.config.JenvState;
-import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.constant.JdkExistsType;
 import com.example.jenv.model.JenvJdkModel;
 import com.example.jenv.util.JenvNotifications;
 import com.example.jenv.util.JenvUtils;
@@ -41,17 +41,17 @@ public class JenvStateService {
         JenvJdkTableService instance = JenvJdkTableService.getInstance();
         JenvJdkModel jenvJdkModel = instance.findJenvJdkByName(jdkName);
         if (jenvJdkModel != null) {
-            JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
+            JdkExistsType existsType = jenvJdkModel.getExistsType();
             if (JenvUtils.checkIsIdeaAndNotJenv(jenvJdkModel)) {
                 String title = JenvBundle.message("notification.jdk.not.jenv.title");
                 String content = JenvBundle.message("notification.jdk.not.jenv.content", jdkName);
-                if (existsType.equals(JenvJdkExistsType.OnlyMajorVersionMatch)) {
+                if (existsType.equals(JdkExistsType.OnlyMajorVersionMatch)) {
                     title = JenvBundle.message("notification.jdk.major.match.title");
                     content = JenvBundle.message("notification.jdk.major.match.content");
                     state.setNeedToChangeFile(true);
                 }
                 JenvNotifications.showWarnNotification(title, content, project, true);
-            } else if (existsType.equals(JenvJdkExistsType.OnlyNameNotMatch)) {
+            } else if (existsType.equals(JdkExistsType.OnlyNameNotMatch)) {
                 String title = JenvBundle.message("notification.jdk.name.not.match.title");
                 String content = JenvBundle.message("notification.jdk.name.not.match.content", jdkName);
                 JenvNotifications.showWarnNotification(title, content, project, true);

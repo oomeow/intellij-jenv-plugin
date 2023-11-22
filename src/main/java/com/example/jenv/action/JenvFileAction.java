@@ -13,11 +13,11 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class JenvFileNodeAction extends DumbAwareAction {
+public class JenvFileAction extends DumbAwareAction {
 
     private final JenvJdkModel jenvJdkModel;
 
-    public JenvFileNodeAction(JenvJdkModel jenvJdkModel) {
+    public JenvFileAction(JenvJdkModel jenvJdkModel) {
         super(jenvJdkModel.getName());
         this.jenvJdkModel = jenvJdkModel;
         Presentation presentation = getTemplatePresentation();

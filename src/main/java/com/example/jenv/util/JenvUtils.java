@@ -1,7 +1,7 @@
 package com.example.jenv.util;
 
 import com.example.jenv.constant.JenvConstants;
-import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.constant.JdkExistsType;
 import com.example.jenv.model.JenvJdkModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,28 +29,28 @@ public class JenvUtils {
     }
 
     public static boolean checkIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
-        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JenvJdkExistsType.Jenv) || existsType.equals(JenvJdkExistsType.OnlyNameNotMatch);
+        JdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JdkExistsType.Jenv) || existsType.equals(JdkExistsType.OnlyNameNotMatch);
     }
 
     public static boolean checkIsIdea(@NotNull JenvJdkModel jenvJdkModel) {
-        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
-        return !existsType.equals(JenvJdkExistsType.Jenv);
+        JdkExistsType existsType = jenvJdkModel.getExistsType();
+        return !existsType.equals(JdkExistsType.Jenv);
     }
 
     public static boolean checkIsIdeaAndIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
-        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JenvJdkExistsType.OnlyNameNotMatch) || existsType.equals(JenvJdkExistsType.Both);
+        JdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JdkExistsType.OnlyNameNotMatch) || existsType.equals(JdkExistsType.Both);
     }
 
     public static boolean checkIsBoth(@NotNull JenvJdkModel jenvJdkModel) {
-        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JenvJdkExistsType.Both);
+        JdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JdkExistsType.Both);
     }
 
     public static boolean checkIsIdeaAndNotJenv(@NotNull JenvJdkModel jenvJdkModel) {
-        JenvJdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JenvJdkExistsType.Idea) || existsType.equals(JenvJdkExistsType.OnlyMajorVersionMatch);
+        JdkExistsType existsType = jenvJdkModel.getExistsType();
+        return existsType.equals(JdkExistsType.IDEA) || existsType.equals(JdkExistsType.OnlyMajorVersionMatch);
     }
 
 }

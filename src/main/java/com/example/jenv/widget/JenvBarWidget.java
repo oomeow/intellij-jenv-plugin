@@ -1,6 +1,6 @@
 package com.example.jenv.widget;
 
-import com.example.jenv.action.JenvFileNodeAction;
+import com.example.jenv.action.JenvFileAction;
 import com.example.jenv.action.JenvJdkModelAction;
 import com.example.jenv.icons.JenvIcons;
 import com.example.jenv.model.JenvJdkModel;
@@ -143,15 +143,15 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
         DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> "Show Jenv All");
         for (JenvJdkModel jenvJdkModel : allJenvJdks) {
-            JenvFileNodeAction jenvFileNodeAction = new JenvFileNodeAction(jenvJdkModel);
-            more.add(jenvFileNodeAction);
+            JenvFileAction jenvFileAction = new JenvFileAction(jenvJdkModel);
+            more.add(jenvFileAction);
         }
         actions.add(more);
         actions.addSeparator();
         actions.addSeparator("Jenv");
         List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
         createActionWithMore(actions, jdksInIdeaAndInJenv, currentJdkName, 5);
-        actions.addSeparator("Idea");
+        actions.addSeparator("IDEA");
         List<JenvJdkModel> jdksInIdeaAndNotInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndNotInJenv();
         createActionWithMore(actions, jdksInIdeaAndNotInJenv, currentJdkName, 3);
         return actions;

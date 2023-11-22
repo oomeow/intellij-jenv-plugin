@@ -19,12 +19,12 @@
     </extensions>
 
     <applicationListeners>
-        <listener class="com.example.jenv.listener.JenvFileChangeListener"
+        <listener class="com.example.jenv.listener.VersionFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
     </applicationListeners>
 
     <projectListeners>
-        <listener class="com.example.jenv.listener.JenvJdkChangeListener"
+        <listener class="com.example.jenv.listener.JdkChangeListener"
                   topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </projectListeners>
 

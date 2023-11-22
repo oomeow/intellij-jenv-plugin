@@ -1,6 +1,6 @@
 package com.example.jenv.activity;
 
-import com.example.jenv.constant.JenvJdkExistsType;
+import com.example.jenv.constant.JdkExistsType;
 import com.example.jenv.model.JenvJdkModel;
 import com.example.jenv.service.JenvJdkTableService;
 import com.example.jenv.service.JenvService;
@@ -26,8 +26,8 @@ public class JenvProjectStartupActivity implements StartupActivity.DumbAware {
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 if (projectSdk != null) {
                     JenvJdkModel jenvJdkModel = JenvJdkTableService.getInstance().findJenvJdkByName(projectSdk.getName());
-                    if (jenvJdkModel.getExistsType().equals(JenvJdkExistsType.OnlyMajorVersionMatch)
-                            || jenvJdkModel.getExistsType().equals(JenvJdkExistsType.OnlyNameNotMatch)) {
+                    if (jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyMajorVersionMatch)
+                            || jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
                         JenvStateService.getInstance(project).changeJenvVersionFile(jenvJdkModel.getShortVersion());
                     } else {
                         JenvStateService.getInstance(project).changeJenvVersionFile(null);

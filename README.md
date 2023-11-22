@@ -1,11 +1,11 @@
-# idea-plugin-demo
+# idea-plugin-Jenv
 
-![Build](https://github.com/JokingAboutLife/idea-plugin-demo/workflows/Build/badge.svg)
+![Build](https://github.com/JokingAboutLife/idea-plugin-Jenv/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
-## This is a Jenv Plugin Demo
-This plugin is referred to the project [madplay/Mad-jEnv](https://github.com/madplay/Mad-jEnv.git)
+## This is a Jenv Plugin
+This project was developed with reference to the [madplay/Mad-jEnv](https://github.com/madplay/Mad-jEnv.git) project.
 
 <!-- Plugin description -->
 
