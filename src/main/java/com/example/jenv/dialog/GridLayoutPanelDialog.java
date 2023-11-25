@@ -33,6 +33,7 @@ import java.util.Map;
 public class GridLayoutPanelDialog extends DialogWrapper {
     private final List<Sdk> addJdkList;
     private final List<JenvRenameModel> renameModelList;
+    private final List<String> existsNameList = new ArrayList<>();
 
     public GridLayoutPanelDialog(Project project, List<JenvRenameModel> renameModelList, List<Sdk> addJdkList) {
         super(project, true);
@@ -41,6 +42,9 @@ public class GridLayoutPanelDialog extends DialogWrapper {
         init();
         setTitle("JDK Rename");
         setSize(400, getSize().height);
+        for (Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()) {
+            existsNameList.add(sdk.getName());
+        }
     }
 
     @Nullable
@@ -121,10 +125,6 @@ public class GridLayoutPanelDialog extends DialogWrapper {
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
-        List<String> existsNameList = new ArrayList<>();
-        for (Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()) {
-            existsNameList.add(sdk.getName());
-        }
         StringBuilder builder = new StringBuilder();
         Map<String, JenvRenameModel> map = new HashMap<>();
         for (JenvRenameModel jenvRenameModel : renameModelList) {
@@ -164,29 +164,31 @@ public class GridLayoutPanelDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            for (JenvRenameModel jenvRenameModel : renameModelList) {
-                if (!jenvRenameModel.isSelected()) {
-                    continue;
-                }
-                // change IDEA SDK name
-                Sdk ideaSdk = jenvRenameModel.getIdeaSdk();
-                SdkModificator sdkModificator = ideaSdk.getSdkModificator();
-                sdkModificator.setName(jenvRenameModel.getChangeName());
-                ProjectJdkTable.getInstance().updateJdk(ideaSdk, (Sdk) sdkModificator);
-                if (!jenvRenameModel.isBelongJenv()) {
-                    // add Jenv jdk to IDEA
-                    JenvJdkModel jenvJdk = jenvRenameModel.getJenvJdk();
-                    VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
-                    if (homePath != null) {
-                        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-                        Sdk sdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdk.getName());
-                        if (sdk != null) {
-                            addJdkList.add(sdk);
+            ApplicationManager.getApplication().runWriteAction(() -> {
+                for (JenvRenameModel jenvRenameModel : renameModelList) {
+                    if (!jenvRenameModel.isSelected()) {
+                        continue;
+                    }
+                    // change IDEA SDK name
+                    Sdk ideaSdk = jenvRenameModel.getIdeaSdk();
+                    SdkModificator sdkModificator = ideaSdk.getSdkModificator();
+                    sdkModificator.setName(jenvRenameModel.getChangeName());
+                    ProjectJdkTable.getInstance().updateJdk(ideaSdk, (Sdk) sdkModificator);
+                    if (!jenvRenameModel.isBelongJenv()) {
+                        // add Jenv jdk to IDEA
+                        JenvJdkModel jenvJdk = jenvRenameModel.getJenvJdk();
+                        VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
+                        if (homePath != null) {
+                            Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+                            Sdk sdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdk.getName());
+                            if (sdk != null) {
+                                addJdkList.add(sdk);
+                            }
                         }
                     }
                 }
-            }
-            super.doOKAction();
+                super.doOKAction();
+            });
         });
     }
 
