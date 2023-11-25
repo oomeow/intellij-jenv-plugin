@@ -21,7 +21,6 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -282,14 +281,10 @@ public class JenvJdkTableService {
         if (!renameModelList.isEmpty()) {
             indicator.setText("Renaming JDK");
             indicator.setFraction(1);
-            try {
-                SwingUtilities.invokeAndWait(() -> {
-                    GridLayoutPanelDialog gridLayoutPanelDialog = new GridLayoutPanelDialog(project, renameModelList, addJdkList);
-                    gridLayoutPanelDialog.show();
-                });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                GridLayoutPanelDialog gridLayoutPanelDialog = new GridLayoutPanelDialog(project, renameModelList, addJdkList);
+                gridLayoutPanelDialog.show();
+            });
         }
     }
 
