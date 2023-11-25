@@ -3,4 +3,8 @@
 # idea-plugin-Jenv Changelog
 
 ## [Unreleased]
+### Added
 - Add jdk rename dialog.
+
+### Next Plan
+- Add dialog to show option which create '.java-version' file.

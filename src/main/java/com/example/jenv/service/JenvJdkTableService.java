@@ -227,12 +227,12 @@ public class JenvJdkTableService {
                 List<Sdk> addJdkList = new ArrayList<>();
                 List<JenvJdkModel> addNewJenvJdkList = new ArrayList<>();
                 List<JenvRenameModel> renameModelList = new ArrayList<>();
-                // analyze Jenv Jdk
+                // analyze Jenv jdk
                 analyzeJenvJdk(indicator, renameModelList, addNewJenvJdkList);
-                // rename SDK dialog
+                // rename IDEA SDK dialog
                 needToRenameDialog(indicator, project, renameModelList, addJdkList);
-                // add SDK
-                addJenvSDK(indicator, addNewJenvJdkList, addJdkList);
+                // add Jenv SDK to IDEA
+                addJenvJdkToIDEA(indicator, addNewJenvJdkList, addJdkList);
             }
         });
     }
@@ -246,7 +246,7 @@ public class JenvJdkTableService {
             String name = jenvJdk.getName();
             boolean exists = false;
             boolean onlyNeedUpdate = false;
-            // find jenv jdk exists in idea
+            // judgement Jenv jdk is existing in IDEA
             for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
                 if (myIdeaJdk.getHomePath().equals(jenvJdk.getHomePath()) || myIdeaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())) {
                     if (myIdeaJdk.getName().equals(name)) {
@@ -293,7 +293,7 @@ public class JenvJdkTableService {
         }
     }
 
-    private static void addJenvSDK(@NotNull ProgressIndicator indicator, List<JenvJdkModel> addNewJenvJdkList, List<Sdk> addJdkList) {
+    private static void addJenvJdkToIDEA(@NotNull ProgressIndicator indicator, List<JenvJdkModel> addNewJenvJdkList, List<Sdk> addJdkList) {
         indicator.setText("Prepare add JDK");
         int addNewListSize = addNewJenvJdkList.size();
         for (int i = 0; i < addNewListSize; i++) {

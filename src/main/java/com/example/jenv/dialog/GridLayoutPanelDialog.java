@@ -73,12 +73,10 @@ public class GridLayoutPanelDialog extends DialogWrapper {
             JenvRenameModel jenvRenameModel = renameModelList.get(i);
             int row = i + 1;
             int col = 0;
-            // 添加文本编辑框到面板
             GridConstraints fileConstraints = new GridConstraints(row, col, 1, 1,
                     GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
                     GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED,
                     null, null, null, 0, false);
-            // 文本编辑框
             JBTextField textField = new JBTextField();
             GridConstraints editConstraints = new GridConstraints(row, col + 1, 1, 1,
                     GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
