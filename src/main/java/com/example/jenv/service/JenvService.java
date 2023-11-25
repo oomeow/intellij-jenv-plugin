@@ -17,10 +17,13 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 public class JenvService {
 
@@ -61,11 +64,13 @@ public class JenvService {
                     }
                 } else {
                     Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-                    for (Sdk sdk : allJdks) {
+                    List<Sdk> sortedAllJdks = Arrays.stream(allJdks).sorted((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName())).toList();
+                    for (Sdk sdk : sortedAllJdks) {
                         if (sdk.getSdkType() instanceof JavaSdkType) {
                             String ideaShortVersion = JenvVersionParser.tryParseAndGetShortVersion(sdk.getVersionString());
                             if (ideaShortVersion.equals(jdkVersion)) {
                                 SdkConfigurationUtil.setDirectoryProjectSdk(project, sdk);
+                                break;
                             }
                         }
                     }
@@ -74,6 +79,7 @@ public class JenvService {
                 JenvNotifications.showErrorNotification("Init project Failed", e.getMessage(), project, false);
             }
         }
+        // update status bar to show jenv plugin
         StatusBarWidgetsManager service = project.getService(StatusBarWidgetsManager.class);
         service.updateWidget(JenvBarWidgetFactory.class);
     }

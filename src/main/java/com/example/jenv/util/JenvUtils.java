@@ -1,7 +1,7 @@
 package com.example.jenv.util;
 
-import com.example.jenv.constant.JenvConstants;
 import com.example.jenv.constant.JdkExistsType;
+import com.example.jenv.constant.JenvConstants;
 import com.example.jenv.model.JenvJdkModel;
 import org.jetbrains.annotations.NotNull;
 

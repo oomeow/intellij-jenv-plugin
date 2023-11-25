@@ -1,12 +1,20 @@
 package com.example.jenv.dialog;
 
+import com.example.jenv.constant.JenvConstants;
+import com.example.jenv.model.JenvJdkModel;
+import com.example.jenv.model.JenvRenameModel;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkModificator;
+import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.ui.dsl.gridLayout.GridLayout;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
@@ -14,50 +22,99 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GridLayoutPanelDialog extends DialogWrapper {
-    private List<Sdk> sdks;
-    private List<JBTextField> fileEditList = new ArrayList<>();
+    private final List<Sdk> addJdkList;
+    private final List<JenvRenameModel> renameModelList;
 
-    public GridLayoutPanelDialog(@Nullable Project project, List<Sdk> sdks) {
+    public GridLayoutPanelDialog(Project project, List<JenvRenameModel> renameModelList, List<Sdk> addJdkList) {
         super(project, true);
-        this.sdks = sdks;
-        for (int i = 0; i < sdks.size(); i++) {
-            fileEditList.add(new JBTextField());
-        }
-        setTitle("JDK Rename");
+        this.addJdkList = addJdkList;
+        this.renameModelList = renameModelList;
         init();
+        setTitle("JDK Rename");
+        setSize(400, getSize().height);
     }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        int size = sdks.size();
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(size, 2, JBUI.insets(5), -1, -1);
+        int size = renameModelList.size();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(size + 1, 2, JBUI.insets(5), -1, -1);
         JPanel panel = new JPanel(gridLayoutManager);
+        // notify message
+//        String subTitle = "Some IDEA JDK need to rename, you can choose what JDK be renamed, Belong to Jenv JDK has its name, and it is not being edited.";
+//        JLabel subTitleLabel = new JLabel(subTitle);
+//        GridConstraints subTitleGridC = new GridConstraints(0, 0, 1, 1,
+//                GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
+//                GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED,
+//                null, null, null, 0, false);
+//        panel.add(subTitleLabel, subTitleGridC);
+        // column name
+        JLabel nameLabel = new JLabel("Before name");
+        JLabel renameLabel = new JLabel("After name");
+        panel.add(nameLabel, new GridConstraints(0, 0, 1, 1,
+                GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED,
+                null, null, null, 0, false));
+        panel.add(renameLabel, new GridConstraints(0, 1, 1, 1,
+                GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED,
+                null, null, null, 0, false));
+        // generator rename row
         for (int i = 0; i < size; i++) {
+            JenvRenameModel jenvRenameModel = renameModelList.get(i);
+            int row = i + 1;
             int col = 0;
             // 添加文本编辑框到面板
-            GridConstraints fileConstraints = new GridConstraints(i, col, 1, 1,
-                    GridConstraints.ANCHOR_WEST,
-                    GridConstraints.FILL_NONE,
-                    GridConstraints.SIZEPOLICY_FIXED,
-                    GridConstraints.SIZEPOLICY_FIXED,
+            GridConstraints fileConstraints = new GridConstraints(row, col, 1, 1,
+                    GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+                    GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED,
                     null, null, null, 0, false);
-            Sdk sdk = sdks.get(i);
-            panel.add(new JLabel("JDK Name: " + sdk.getName()), fileConstraints);
             // 文本编辑框
-            JBTextField textField = fileEditList.get(i);
-            GridConstraints editConstraints = new GridConstraints(i, col + 1, 1, 1,
-                    GridConstraints.ANCHOR_WEST,
-                    GridConstraints.FILL_HORIZONTAL,
-                    GridConstraints.SIZEPOLICY_WANT_GROW,
-                    GridConstraints.SIZEPOLICY_FIXED,
+            JBTextField textField = new JBTextField();
+            GridConstraints editConstraints = new GridConstraints(row, col + 1, 1, 1,
+                    GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+                    GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED,
                     null, null, null, 0, false);
+            textField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    jenvRenameModel.setChangeName(textField.getText().trim());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    jenvRenameModel.setChangeName(textField.getText().trim());
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    // use to a Plain Text component, not applicable to this component.
+                }
+            });
+            Sdk sdk = jenvRenameModel.getIdeaSdk();
+            JBCheckBox checkBox = new JBCheckBox(sdk.getName(), true);
+            checkBox.addChangeListener(e -> {
+                if (e.getSource() instanceof JBCheckBox box) {
+                    jenvRenameModel.setSelected(box.isSelected());
+                    if (!jenvRenameModel.isBelongJenv()) {
+                        textField.setEnabled(box.isSelected());
+                    }
+                }
+            });
+            if (jenvRenameModel.isBelongJenv()) {
+                textField.setText(jenvRenameModel.getChangeName());
+                textField.setEnabled(false);
+            }
+            panel.add(checkBox, fileConstraints);
             panel.add(textField, editConstraints);
         }
         return panel;
@@ -66,40 +123,73 @@ public class GridLayoutPanelDialog extends DialogWrapper {
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
-        StringBuilder builder = new StringBuilder("<html>");
-        Map<String, Sdk> map = new HashMap<>();
-        for (int i = 0; i < fileEditList.size(); i++) {
-            String name = sdks.get(i).getName();
-            JBTextField textField = fileEditList.get(i);
-            String text = textField.getText().trim();
-            if (StringUtils.isEmpty(text)) {
+        List<String> existsNameList = new ArrayList<>();
+        for (Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()) {
+            existsNameList.add(sdk.getName());
+        }
+        StringBuilder builder = new StringBuilder();
+        Map<String, JenvRenameModel> map = new HashMap<>();
+        for (JenvRenameModel jenvRenameModel : renameModelList) {
+            if (!jenvRenameModel.isSelected()) {
+                continue;
+            }
+            String name = jenvRenameModel.getIdeaSdk().getName();
+            String changeName = jenvRenameModel.getChangeName();
+            if (StringUtils.isEmpty(changeName)) {
                 builder.append("JDK Name: ").append(name).append(" rename is empty.<br>");
                 continue;
             }
-            if (name.equals(text)) {
+            if (changeName.equals(name)) {
                 builder.append("JDK Name: ").append(name).append(" rename not to same.<br>");
                 continue;
             }
-            if (map.get(text) != null) {
-                builder.append("JDK Name: ").append(name).append(" More than one of the same name ").append("[").append(text).append("].<br>");
+            if (existsNameList.contains(changeName)) {
+                builder.append("JDK Name: ").append(name).append(": the change name ").append("[").append(changeName).append("] has exists in IDEA.<br>");
+                continue;
             }
-            map.put(text, sdks.get(i));
+            if (map.get(changeName) != null) {
+                builder.append("JDK Name: ").append(name).append(" More than one of the same name ").append("[").append(changeName).append("].<br>");
+            }
+            map.put(changeName, jenvRenameModel);
         }
-        builder.append("</html>");
-        String str = builder.toString();
         ValidationInfo validationInfo = null;
-        if (StringUtils.isNotEmpty(str)) {
+        if (StringUtils.isNotEmpty(builder)) {
+            builder.insert(0, "<html>");
+            builder.append("</html>");
+            String str = builder.toString();
             validationInfo = new ValidationInfo(str);
         }
-        // 在这里可以进行输入验证，返回 null 表示验证通过
+        // return null mean success
         return validationInfo;
     }
 
     @Override
     protected void doOKAction() {
         ApplicationManager.getApplication().invokeAndWait(() -> {
-            System.out.println("OK OK OK");
+            for (JenvRenameModel jenvRenameModel : renameModelList) {
+                if (!jenvRenameModel.isSelected()) {
+                    continue;
+                }
+                // change IDEA SDK name
+                Sdk ideaSdk = jenvRenameModel.getIdeaSdk();
+                SdkModificator sdkModificator = ideaSdk.getSdkModificator();
+                sdkModificator.setName(jenvRenameModel.getChangeName());
+                ProjectJdkTable.getInstance().updateJdk(ideaSdk, (Sdk) sdkModificator);
+                if (!jenvRenameModel.isBelongJenv()) {
+                    // add Jenv jdk to IDEA
+                    JenvJdkModel jenvJdk = jenvRenameModel.getJenvJdk();
+                    VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
+                    if (homePath != null) {
+                        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+                        Sdk sdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdk.getName());
+                        if (sdk != null) {
+                            addJdkList.add(sdk);
+                        }
+                    }
+                }
+            }
             super.doOKAction();
         });
     }
+
 }
