@@ -21,17 +21,13 @@
     <applicationListeners>
         <listener class="com.example.jenv.listener.VersionFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+        <listener class="com.example.jenv.listener.JdkChangeListener"
+                  topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </applicationListeners>
 
     <projectListeners>
-        <listener class="com.example.jenv.listener.JdkChangeListener"
-                  topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </projectListeners>
 
     <actions>
-        <!--        <action id="com.example.jenv.action.JenvAction" class="com.example.jenv.action.JenvAction" text="Jenv"-->
-        <!--                description="Jenv action">-->
-        <!--            <add-to-group group-id="ToolsMenu" anchor="last"/>-->
-        <!--        </action>-->
     </actions>
 </idea-plugin>
