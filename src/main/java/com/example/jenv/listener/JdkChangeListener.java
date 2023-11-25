@@ -5,6 +5,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
 public class JdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
@@ -14,6 +15,8 @@ public class JdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
     public void jdkRemoved(@NotNull Sdk jdk) {
+        // if renamed jdk is project jdk, need to set project jdk to null,
+        //  otherwise IDEA will create the same name jdk.
         JenvJdkTableService.getInstance().removeFromJenvJdks(jdk);
     }
 
