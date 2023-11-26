@@ -7,11 +7,11 @@
 <!-- Plugin description -->
 
 ## This is a Jenv Plugin
-This is IntelliJ plugin for Jenv (https://www.jenv.be).
+This is IntelliJ plugin for Jenv (Website: https://www.jenv.be).
 
 - Add All Jenv jdks option, rename IDEA SDK when its name is same with Jenv jdk.
 - Listening the change of project Jenv version file (`.java-version`) and change the project jdk.
-- Change project jdk by status bar.
+- Change project jdk by status bar. When Jenv version file does not exist in this project, show message dialog to create Jenv version file in this project.
 
 <!-- Plugin description end -->
 
