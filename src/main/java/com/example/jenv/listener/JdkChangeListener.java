@@ -1,11 +1,15 @@
 package com.example.jenv.listener;
 
 import com.example.jenv.service.JenvJdkTableService;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
+import com.intellij.openapi.roots.ProjectRootManager;
 import org.jetbrains.annotations.NotNull;
 
-@Deprecated
 public class JdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
@@ -15,8 +19,18 @@ public class JdkChangeListener implements ProjectJdkTable.Listener {
 
     @Override
     public void jdkRemoved(@NotNull Sdk jdk) {
-        // if renamed jdk is project jdk, need to set project jdk to null,
-        //  otherwise IDEA will create the same name jdk.
+        @NotNull Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+        for (Project project : openProjects) {
+            // if the deleted jdk is the current project jdk, set the project jdk to null before deleting it
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (projectSdk != null) {
+                String projectJdkName = projectSdk.getName();
+                String jdkName = jdk.getName();
+                if (projectJdkName.equals(jdkName)) {
+                    ApplicationManager.getApplication().invokeLater(() -> SdkConfigurationUtil.setDirectoryProjectSdk(project, null));
+                }
+            }
+        }
         JenvJdkTableService.getInstance().removeFromJenvJdks(jdk);
     }
 

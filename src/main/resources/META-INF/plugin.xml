@@ -21,6 +21,8 @@
     <applicationListeners>
         <listener class="com.example.jenv.listener.VersionFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+        <listener class="com.example.jenv.listener.JdkChangeListener"
+                  topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </applicationListeners>
 
 </idea-plugin>

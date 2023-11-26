@@ -2,7 +2,7 @@ package com.example.jenv.service;
 
 import com.example.jenv.constant.JdkExistsType;
 import com.example.jenv.constant.JenvConstants;
-import com.example.jenv.dialog.GridLayoutPanelDialog;
+import com.example.jenv.dialog.JdkRenameDialog;
 import com.example.jenv.model.JenvJdkModel;
 import com.example.jenv.model.JenvRenameModel;
 import com.example.jenv.util.JenvUtils;
@@ -282,8 +282,8 @@ public class JenvJdkTableService {
             indicator.setText("Renaming JDK");
             indicator.setFraction(1);
             ApplicationManager.getApplication().invokeAndWait(() -> {
-                GridLayoutPanelDialog gridLayoutPanelDialog = new GridLayoutPanelDialog(project, renameModelList, addJdkList);
-                gridLayoutPanelDialog.show();
+                JdkRenameDialog jdkRenameDialog = new JdkRenameDialog(project, renameModelList, addJdkList);
+                jdkRenameDialog.show();
             });
         }
     }
