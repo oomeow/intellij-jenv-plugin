@@ -19,6 +19,8 @@ This is IntelliJ plugin for Jenv (Website: https://www.jenv.be).
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
+---
+
 ## License
 This project is licensed under the [MIT license].
 
