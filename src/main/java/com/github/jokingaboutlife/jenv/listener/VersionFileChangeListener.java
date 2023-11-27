@@ -32,7 +32,7 @@ public class VersionFileChangeListener implements BulkFileListener {
             if (!fileEvent.getPath().endsWith(JenvConstants.VERSION_FILE)) {
                 continue;
             }
-            // create and delete event maybe can get this current project by
+            // create or delete event probably get current project by the following way
             if (fileEvent instanceof VFileCreateEvent || fileEvent instanceof VFileDeleteEvent) {
                 Object requester = fileEvent.getRequestor();
                 if (requester instanceof Project fileProject) {
@@ -43,16 +43,18 @@ public class VersionFileChangeListener implements BulkFileListener {
                     currentProject = psiManager.getProject();
                 }
             }
-            // create event and content change event use guessProject method to find this current project
             VirtualFile jenvFile = fileEvent.getFile();
             if (jenvFile == null) {
                 continue;
             }
+            // currentProject still null, use guessProject method to find this current project
             if (currentProject == null) {
-                currentProject = ProjectUtil.guessProjectForFile(jenvFile);
-            }
-            if (currentProject == null) {
-                continue;
+                Project guessProject = ProjectUtil.guessProjectForFile(jenvFile);
+                if (guessProject == null) {
+                    continue;
+                } else {
+                    currentProject = guessProject;
+                }
             }
             if (StringUtils.equals(currentProject.getBasePath(), jenvFile.getParent().getPath())) {
                 // jenv version file has deleted or created

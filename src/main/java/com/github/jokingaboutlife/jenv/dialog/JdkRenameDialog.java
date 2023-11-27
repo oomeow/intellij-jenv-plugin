@@ -54,7 +54,7 @@ public class JdkRenameDialog extends DialogWrapper {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(size + 1, 2, JBUI.insets(5), -1, -1);
         JPanel panel = new JPanel(gridLayoutManager);
         // notify message
-//        String subTitle = "Some IDEA JDK need to rename, you can choose what JDK be renamed, Belong to Jenv JDK has its name, and it is not being edited.";
+//        String subTitle = "Some IDEA JDK need to rename, you can choose what JDK be renamed, Belong to jEnv JDK has its name, and it is not being edited.";
 //        JLabel subTitleLabel = new JLabel(subTitle);
 //        GridConstraints subTitleGridC = new GridConstraints(0, 0, 1, 1,
 //                GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE,
@@ -174,7 +174,7 @@ public class JdkRenameDialog extends DialogWrapper {
                 sdkModificator.setName(jenvRenameModel.getChangeName());
                 ProjectJdkTable.getInstance().updateJdk(ideaSdk, (Sdk) sdkModificator);
                 if (!jenvRenameModel.isBelongJenv()) {
-                    // add Jenv jdk to IDEA
+                    // add jEnv jdk to IDEA
                     JenvJdkModel jenvJdk = jenvRenameModel.getJenvJdk();
                     VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
                     if (homePath != null) {

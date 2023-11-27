@@ -88,7 +88,7 @@ public class JenvJdkTableService {
     }
 
     private JdkExistsType getIdeaJdkExistsType(Sdk jdk, String majorVersion) {
-        JdkExistsType jdkExistsType = JdkExistsType.IDEA;
+        JdkExistsType jdkExistsType = JdkExistsType.OnlyInIDEA;
         for (JenvJdkModel myJenvSdk : myJenvJdks) {
             boolean nameMatch = false;
             boolean majorVersionMatch = false;
@@ -106,7 +106,7 @@ public class JenvJdkTableService {
                 homePathMatch = true;
             }
             if (majorVersionMatch) {
-                if (jdkExistsType.equals(JdkExistsType.IDEA)) {
+                if (jdkExistsType.equals(JdkExistsType.OnlyInIDEA)) {
                     jdkExistsType = JdkExistsType.OnlyMajorVersionMatch;
                 }
                 if (homePathMatch) {
@@ -124,7 +124,7 @@ public class JenvJdkTableService {
 
     @Deprecated
     private JdkExistsType getJenvJdkExistsType(JenvJdkModel jenvJdkModel) {
-        JdkExistsType jdkExistsType = JdkExistsType.Jenv;
+        JdkExistsType jdkExistsType = JdkExistsType.OnlyInJEnv;
         for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
             boolean nameMatch = false;
             boolean majorVersionMatch = false;
@@ -195,7 +195,7 @@ public class JenvJdkTableService {
         for (File jenvJdkVersionFile : jenvJdkVersionFiles) {
             JenvJdkModel jenvJdkModel = new JenvJdkModel();
             try {
-                jenvJdkModel.setExistsType(JdkExistsType.Jenv);
+                jenvJdkModel.setExistsType(JdkExistsType.OnlyInJEnv);
                 jenvJdkModel.setName(jenvJdkVersionFile.getName());
                 String fullVersion = jenvJdkVersionFile.getName();
                 String digitVersion = JenvVersionParser.tryParse(fullVersion);
@@ -220,17 +220,17 @@ public class JenvJdkTableService {
     }
 
     public void addAllJenvJdksToIdea(Project project) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Add all Jenv JDK") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Add all jEnv JDK") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 List<Sdk> addJdkList = new ArrayList<>();
                 List<JenvJdkModel> addNewJenvJdkList = new ArrayList<>();
                 List<JenvRenameModel> renameModelList = new ArrayList<>();
-                // analyze Jenv jdk
+                // analyze jEnv jdk
                 analyzeJenvJdk(indicator, renameModelList, addNewJenvJdkList);
                 // rename IDEA SDK dialog
                 needToRenameDialog(indicator, project, renameModelList, addJdkList);
-                // add Jenv SDK to IDEA
+                // add jEnv SDK to IDEA
                 addJenvJdkToIDEA(indicator, addNewJenvJdkList, addJdkList);
             }
         });
@@ -245,7 +245,7 @@ public class JenvJdkTableService {
             String name = jenvJdk.getName();
             boolean exists = false;
             boolean onlyNeedUpdate = false;
-            // judgement Jenv jdk is existing in IDEA
+            // judgement jEnv jdk is existing in IDEA
             for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
                 if (myIdeaJdk.getHomePath().equals(jenvJdk.getHomePath()) || myIdeaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())) {
                     if (myIdeaJdk.getName().equals(name)) {

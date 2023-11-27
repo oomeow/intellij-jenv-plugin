@@ -2,6 +2,7 @@ package com.github.jokingaboutlife.jenv.action;
 
 import com.github.jokingaboutlife.jenv.JenvBundle;
 import com.github.jokingaboutlife.jenv.config.JenvState;
+import com.github.jokingaboutlife.jenv.constant.JdkExistsType;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvStateService;
@@ -20,7 +21,6 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 public class JenvJdkModelAction extends DumbAwareAction {
@@ -45,7 +45,11 @@ public class JenvJdkModelAction extends DumbAwareAction {
         if (project != null) {
             String jdkName = jenvJdkModel.getName();
             JenvState state = JenvStateService.getInstance(project).getState();
-            if (!state.isProjectJenvExists()) {
+            if (state.isProjectJenvExists()) {
+                JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
+                return;
+            }
+            if (!jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyInIDEA)) {
                 String title = JenvBundle.message("messages.create.jenv.version.file.title");
                 String message = JenvBundle.message("messages.create.jenv.version.file.content");
                 int result = Messages.showYesNoDialog(message, title, AllIcons.General.Information);
@@ -57,7 +61,7 @@ public class JenvJdkModelAction extends DumbAwareAction {
                                 VirtualFile baseDir = VirtualFileManager.getInstance().findFileByNioPath(Paths.get(basePath));
                                 if (baseDir != null) {
                                     VirtualFile jenvFile = baseDir.createChildData(project, JenvConstants.VERSION_FILE);
-                                    jenvFile.setBinaryContent(jdkName.getBytes(StandardCharsets.UTF_8));
+                                    JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
                                     VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
                                     PsiFile psiFile = PsiManager.getInstance(project).findFile(jenvFile);
                                     if (psiFile != null) {
@@ -71,8 +75,6 @@ public class JenvJdkModelAction extends DumbAwareAction {
                     }));
                 }
             }
-            state.setNeedToChangeFile(true);
-            JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
         }
     }
 

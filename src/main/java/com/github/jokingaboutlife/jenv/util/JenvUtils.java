@@ -30,12 +30,12 @@ public class JenvUtils {
 
     public static boolean checkIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JdkExistsType.Jenv) || existsType.equals(JdkExistsType.OnlyNameNotMatch);
+        return existsType.equals(JdkExistsType.OnlyInJEnv) || existsType.equals(JdkExistsType.Both) || existsType.equals(JdkExistsType.OnlyNameNotMatch);
     }
 
     public static boolean checkIsIdea(@NotNull JenvJdkModel jenvJdkModel) {
         JdkExistsType existsType = jenvJdkModel.getExistsType();
-        return !existsType.equals(JdkExistsType.Jenv);
+        return !existsType.equals(JdkExistsType.OnlyInJEnv);
     }
 
     public static boolean checkIsIdeaAndIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
@@ -50,7 +50,7 @@ public class JenvUtils {
 
     public static boolean checkIsIdeaAndNotJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JdkExistsType.IDEA) || existsType.equals(JdkExistsType.OnlyMajorVersionMatch);
+        return existsType.equals(JdkExistsType.OnlyInIDEA) || existsType.equals(JdkExistsType.OnlyMajorVersionMatch);
     }
 
 }

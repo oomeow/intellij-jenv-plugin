@@ -3,12 +3,12 @@ package com.github.jokingaboutlife.jenv.constant;
 import javax.swing.*;
 
 public enum JdkExistsType {
-    Jenv("Exists in Jenv", null),
+    OnlyInJEnv("Only exists in jEnv", null),
     // The following belong to IDEA
-    IDEA("Exists in IDEA", null),
-    Both("Exists in Jenv and IDEA", null),
-    OnlyMajorVersionMatch("Not Jenv, Java Major Version Exists in Jenv", null),
-    OnlyNameNotMatch("Same JDK path, Different Name", null),
+    OnlyInIDEA("Only exists in IDEA", null),
+    Both("Exist in jEnv and IDEA", null),
+    OnlyMajorVersionMatch("Not jEnv, but Java major version exist in jEnv", null),
+    OnlyNameNotMatch("Same one, but different name", null),
     ;
 
     private final String description;

@@ -35,8 +35,8 @@ import java.util.List;
 public class JenvBarWidget extends TextPanel.WithIconAndArrows implements CustomStatusBarWidget {
 
     private final @NotNull Project project;
-    public static final String JENV_STATUS_BAR_ID = "Jenv.Widget";
-    public static final String JENV_STATUS_BAR_DISPLAY_NAME = "Jenv";
+    public static final String JENV_STATUS_BAR_ID = "jEnv.Widget";
+    public static final String JENV_STATUS_BAR_DISPLAY_NAME = "jEnv";
 
     public JenvBarWidget(@NotNull Project project) {
         this.project = project;
@@ -48,7 +48,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
             setIcon(AllIcons.General.Error);
             setText("No JDK");
         }
-        setToolTipText("Jenv");
+        setToolTipText("jEnv Helper");
     }
 
     @Override
@@ -134,21 +134,21 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 JenvJdkTableService.getInstance().refreshJenvJdks();
             }
         });
-        actions.add(new AnAction("Add All", "Add all Jenv jdks to IDEA", AllIcons.Actions.AddFile) {
+        actions.add(new AnAction("Add All", "Add all jEnv jdks to IDEA", AllIcons.Actions.AddFile) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
             }
         });
         List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
-        DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> "Show Jenv All");
+        DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> "Show jEnv All");
         for (JenvJdkModel jenvJdkModel : allJenvJdks) {
             JenvFileAction jenvFileAction = new JenvFileAction(jenvJdkModel);
             more.add(jenvFileAction);
         }
         actions.add(more);
         actions.addSeparator();
-        actions.addSeparator("Jenv");
+        actions.addSeparator("jEnv");
         List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
         createActionWithMore(actions, jdksInIdeaAndInJenv, currentJdkName, 5);
         actions.addSeparator("IDEA");

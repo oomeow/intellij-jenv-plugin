@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class JenvNotifications {
 
-    private static final String NOTIFICATION_GROUP_ID = "Jenv";
-    private static final String DONT_SHOW_AGAIN_KEY_PREFIX = "notification.Jenv.dont.show.again";
+    private static final String NOTIFICATION_GROUP_ID = "jEnv";
+    private static final String DONT_SHOW_AGAIN_KEY_PREFIX = "notification.jEnv.dont.show.again";
 
     public static void showNotificationOrDontShowAgain(String title, String content, Project project, NotificationType type, boolean dontShowAgain) {
         Notification notification = NotificationGroupManager.getInstance()
