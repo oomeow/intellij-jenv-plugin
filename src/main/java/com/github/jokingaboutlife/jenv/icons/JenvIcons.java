@@ -1,6 +1,6 @@
 package com.github.jokingaboutlife.jenv.icons;
 
-import com.intellij.ui.IconManager;
+import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +11,6 @@ public class JenvIcons {
     public static final @NotNull Icon IDEA = load("/icons/idea.svg");
 
     private static @NotNull Icon load(@NotNull @NonNls String path) {
-        return IconManager.getInstance().getIcon(path, JenvIcons.class);
+        return IconLoader.getIcon(path, JenvIcons.class);
     }
 }
