@@ -17,6 +17,7 @@ This is IntelliJ plugin for Jenv (Website: https://www.jenv.be).
 <!-- Plugin description end -->
 
 ---
+
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 ---
