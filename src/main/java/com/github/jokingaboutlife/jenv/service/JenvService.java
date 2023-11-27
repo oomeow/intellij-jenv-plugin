@@ -23,7 +23,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 
 public class JenvService {
 
@@ -64,8 +63,8 @@ public class JenvService {
                     }
                 } else {
                     Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-                    List<Sdk> sortedAllJdks = Arrays.stream(allJdks).sorted((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName())).toList();
-                    for (Sdk sdk : sortedAllJdks) {
+                    Arrays.sort(allJdks, (o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+                    for (Sdk sdk : allJdks) {
                         if (sdk.getSdkType() instanceof JavaSdkType) {
                             String ideaShortVersion = JenvVersionParser.tryParseAndGetShortVersion(sdk.getVersionString());
                             if (ideaShortVersion.equals(jdkVersion)) {

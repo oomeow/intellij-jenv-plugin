@@ -208,8 +208,8 @@ public class JenvJdkTableService {
             myJenvJdks.add(jenvJdkModel);
         }
         Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-        List<Sdk> sortedAllJdks = Arrays.stream(allJdks).sorted((o1, o2) -> StringUtils.compare(o1.getName(), o2.getName())).toList();
-        for (Sdk jdk : sortedAllJdks) {
+        Arrays.sort(allJdks, (o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+        for (Sdk jdk : allJdks) {
             if (jdk.getSdkType() instanceof JavaSdkType) {
                 JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
                 myIdeaJdks.add(jenvJdkModel);
