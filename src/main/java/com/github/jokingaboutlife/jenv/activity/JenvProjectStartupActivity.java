@@ -26,13 +26,14 @@ public class JenvProjectStartupActivity implements StartupActivity.DumbAware {
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 if (projectSdk != null) {
                     JenvJdkModel jenvJdkModel = JenvJdkTableService.getInstance().findJenvJdkByName(projectSdk.getName());
+                    JenvStateService stateService = JenvStateService.getInstance(project);
                     if (jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyMajorVersionMatch)
                             || jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
-                        JenvStateService.getInstance(project).changeJenvVersionFile(jenvJdkModel.getShortVersion());
+                        stateService.changeJenvVersionFile(jenvJdkModel.getShortVersion());
                     } else {
-                        JenvStateService.getInstance(project).changeJenvVersionFile(null);
+                        stateService.changeJenvVersionFile(null);
                     }
-                    JenvStateService.getInstance(project).getState().setNeedToChangeFile(false);
+                    stateService.getState().setNeedToChangeFile(false);
                 }
             });
         }));

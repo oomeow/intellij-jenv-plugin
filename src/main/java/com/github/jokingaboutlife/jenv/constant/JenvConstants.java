@@ -15,7 +15,6 @@ public class JenvConstants {
     public static final String VERSION_FILE = ".java-version";
     public static final String JENV_INSTALL_URL = "https://www.jenv.be";
     public static final @NotNull SdkType PROJECT_JENV_JDK_TYPE;
-    public static final String JDK_RENAME_SUFFIX = "-renamed";
 
     static {
         USER_HOME = System.getProperty("user.home");

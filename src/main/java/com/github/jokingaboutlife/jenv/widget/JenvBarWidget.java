@@ -36,7 +36,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
 
     private final @NotNull Project project;
     public static final String JENV_STATUS_BAR_ID = "jEnv.Widget";
-    public static final String JENV_STATUS_BAR_DISPLAY_NAME = "jEnv";
+    public static final String JENV_STATUS_BAR_DISPLAY_NAME = "jEnv Helper";
 
     public JenvBarWidget(@NotNull Project project) {
         this.project = project;

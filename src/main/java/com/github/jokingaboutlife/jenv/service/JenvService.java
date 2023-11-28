@@ -54,20 +54,22 @@ public class JenvService {
             state.setProjectJenvExists(true);
             state.setProjectJenvFilePath(projectJenvFile.getPath());
             try {
-                String jdkVersion = new String(projectJenvFile.contentsToByteArray(), StandardCharsets.UTF_8).trim();
-                Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkVersion);
+                String jdkName = new String(projectJenvFile.contentsToByteArray(), StandardCharsets.UTF_8).trim();
+                Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkName);
                 if (jdk != null) {
+                    // find one JDK by name
                     Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                     if (projectSdk == null || projectSdk != jdk) {
                         SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
                     }
                 } else {
+                    // not found JDK, find again by JDK short version
                     Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
                     Arrays.sort(allJdks, (o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
                     for (Sdk sdk : allJdks) {
                         if (sdk.getSdkType() instanceof JavaSdkType) {
                             String ideaShortVersion = JenvVersionParser.tryParseAndGetShortVersion(sdk.getVersionString());
-                            if (ideaShortVersion.equals(jdkVersion)) {
+                            if (ideaShortVersion.equals(jdkName)) {
                                 SdkConfigurationUtil.setDirectoryProjectSdk(project, sdk);
                                 break;
                             }
