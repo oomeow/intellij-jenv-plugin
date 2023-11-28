@@ -1,10 +1,11 @@
 package com.github.jokingaboutlife.jenv.dialog;
 
-import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.model.JenvRenameModel;
+import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkModificator;
@@ -34,6 +35,7 @@ public class JdkRenameDialog extends DialogWrapper {
     private final List<Sdk> addJdkList;
     private final List<JenvRenameModel> renameModelList;
     private final List<String> existsNameList = new ArrayList<>();
+    private final List<String> jenvNameList = new ArrayList<>();
 
     public JdkRenameDialog(Project project, List<JenvRenameModel> renameModelList, List<Sdk> addJdkList) {
         super(project, true);
@@ -44,6 +46,10 @@ public class JdkRenameDialog extends DialogWrapper {
         setSize(400, getSize().height);
         for (Sdk sdk : ProjectJdkTable.getInstance().getAllJdks()) {
             existsNameList.add(sdk.getName());
+        }
+        List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
+        for (JenvJdkModel jenvJdkModel : allJenvJdks) {
+            jenvNameList.add(jenvJdkModel.getName());
         }
     }
 
@@ -145,6 +151,10 @@ public class JdkRenameDialog extends DialogWrapper {
                 builder.append("JDK Name: ").append(name).append(": the change name ").append("[").append(changeName).append("] has exists in IDEA.<br>");
                 continue;
             }
+            if (jenvNameList.contains(changeName)) {
+                builder.append("JDK Name: ").append(name).append(": the change name ").append("[").append(changeName).append("] will add as jenv JDK.<br>");
+                continue;
+            }
             if (map.get(changeName) != null) {
                 builder.append("JDK Name: ").append(name).append(" More than one of the same name ").append("[").append(changeName).append("].<br>");
             }
@@ -179,7 +189,7 @@ public class JdkRenameDialog extends DialogWrapper {
                     VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdk.getHomePath()));
                     if (homePath != null) {
                         Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-                        Sdk sdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdk.getName());
+                        Sdk sdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JavaSdk.getInstance(), true, null, jenvJdk.getName());
                         if (sdk != null) {
                             addJdkList.add(sdk);
                         }

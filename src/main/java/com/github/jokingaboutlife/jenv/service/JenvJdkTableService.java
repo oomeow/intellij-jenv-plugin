@@ -1,7 +1,6 @@
 package com.github.jokingaboutlife.jenv.service;
 
 import com.github.jokingaboutlife.jenv.constant.JdkExistsType;
-import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.dialog.JdkRenameDialog;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.model.JenvRenameModel;
@@ -12,6 +11,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -297,7 +297,7 @@ public class JenvJdkTableService {
             VirtualFile homePath = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdkModel.getHomePath()));
             if (homePath != null) {
                 Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-                Sdk addJenvJdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JenvConstants.PROJECT_JENV_JDK_TYPE, true, null, jenvJdkModel.getName());
+                Sdk addJenvJdk = SdkConfigurationUtil.setupSdk(allJdks, homePath, JavaSdk.getInstance(), true, null, jenvJdkModel.getName());
                 if (addJenvJdk != null) {
                     addJdkList.add(addJenvJdk);
                 }
