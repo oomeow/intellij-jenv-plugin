@@ -80,20 +80,17 @@ public class JenvStateService {
         }
     }
 
-    public void changeJenvVersionFile(String manualContent) {
-        if (!state.isProjectJenvExists()) {
+    public void changeJenvVersionFile(String handwrittenContent) {
+        if (!state.isProjectJenvExists() || !state.isNeedToChangeFile()) {
             return;
         }
         Sdk changedJdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (changedJdk == null) {
             return;
         }
-        if (state.isFileChanged() && !state.isNeedToChangeFile() && manualContent == null) {
-            return;
-        }
         String content;
-        if (StringUtils.isNoneBlank(manualContent)) {
-            content = manualContent;
+        if (StringUtils.isNoneBlank(handwrittenContent)) {
+            content = handwrittenContent;
         } else {
             String changedJdkName = changedJdk.getName();
             JenvJdkTableService instance = JenvJdkTableService.getInstance();
@@ -107,13 +104,13 @@ public class JenvStateService {
         String projectJenvFilePath = state.getProjectJenvFilePath();
         VirtualFile vProjectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJenvFilePath));
         if (content != null && vProjectJenvFile != null && vProjectJenvFile.exists()) {
-            ApplicationManager.getApplication().runWriteAction(() -> {
+            ApplicationManager.getApplication().invokeAndWait(() -> ApplicationManager.getApplication().runWriteAction(() -> {
                 try {
                     vProjectJenvFile.setBinaryContent(content.getBytes(StandardCharsets.UTF_8));
                 } catch (IOException e) {
                     JenvNotifications.showErrorNotification("Change jEnv version File Failed", e.getMessage(), project, false);
                 }
-            });
+            }));
         }
     }
 

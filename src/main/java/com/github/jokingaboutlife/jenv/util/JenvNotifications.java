@@ -14,11 +14,11 @@ public class JenvNotifications {
     private static final String NOTIFICATION_GROUP_ID = "jEnv";
     private static final String DONT_SHOW_AGAIN_KEY_PREFIX = "notification.jEnv.dont.show.again";
 
-    public static void showNotificationOrDontShowAgain(String title, String content, Project project, NotificationType type, boolean dontShowAgain) {
+    private static void showNotificationOrDontShowAgain(String title, String content, Project project, NotificationType type, boolean showAgainBtn) {
         Notification notification = NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP_ID)
                 .createNotification(title, content, type);
-        if (dontShowAgain) {
+        if (showAgainBtn) {
             notification.addAction(new DontShowAgainAction(title));
         }
         if (!isDoNotShowAgain(title)) {
@@ -26,16 +26,16 @@ public class JenvNotifications {
         }
     }
 
-    public static void showInfoNotification(String title, String content, Project project, boolean dontShowAgain) {
-        showNotificationOrDontShowAgain(title, content, project, NotificationType.INFORMATION, dontShowAgain);
+    public static void showInfoNotification(String title, String content, Project project, boolean showAgainBtn) {
+        showNotificationOrDontShowAgain(title, content, project, NotificationType.INFORMATION, showAgainBtn);
     }
 
-    public static void showWarnNotification(String title, String content, Project project, boolean dontShowAgain) {
-        showNotificationOrDontShowAgain(title, content, project, NotificationType.WARNING, dontShowAgain);
+    public static void showWarnNotification(String title, String content, Project project, boolean showAgainBtn) {
+        showNotificationOrDontShowAgain(title, content, project, NotificationType.WARNING, showAgainBtn);
     }
 
-    public static void showErrorNotification(String title, String content, Project project, boolean dontShowAgain) {
-        showNotificationOrDontShowAgain(title, content, project, NotificationType.ERROR, dontShowAgain);
+    public static void showErrorNotification(String title, String content, Project project, boolean showAgainBtn) {
+        showNotificationOrDontShowAgain(title, content, project, NotificationType.ERROR, showAgainBtn);
     }
 
     public static void setDontShowAgain(String key, boolean show) {

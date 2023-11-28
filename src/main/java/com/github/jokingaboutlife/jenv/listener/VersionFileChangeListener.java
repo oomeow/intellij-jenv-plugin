@@ -47,7 +47,6 @@ public class VersionFileChangeListener implements BulkFileListener {
             if (jenvFile == null) {
                 continue;
             }
-            // currentProject still null, use guessProject method to find this current project
             if (currentProject == null) {
                 Project guessProject = ProjectUtil.guessProjectForFile(jenvFile);
                 if (guessProject == null) {
@@ -57,44 +56,40 @@ public class VersionFileChangeListener implements BulkFileListener {
                 }
             }
             if (StringUtils.equals(currentProject.getBasePath(), jenvFile.getParent().getPath())) {
-                // jenv version file has deleted or created
                 JenvStateService stateService = JenvStateService.getInstance(currentProject);
                 JenvState state = stateService.getState();
-                if (fileEvent instanceof VFileCreateEvent || fileEvent instanceof VFileDeleteEvent) {
-                    if (fileEvent instanceof VFileCreateEvent) {
-                        try {
-                            state.setFileChanged(true);
-                            String jdkVersion = new String(jenvFile.contentsToByteArray()).trim();
-                            // create Jenv version file:
-                            //  1. by jenv command, its value is not empty.
-                            //  2. by this plugin dialog, its value is empty.
-                            if (!StringUtils.isEmpty(jdkVersion)) {
-                                stateService.changeJenvJdkWithNotification(jdkVersion);
-                            }
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        } finally {
-                            state.setFileChanged(false);
-                        }
-                        state.setProjectJenvExists(true);
-                        state.setProjectJenvFilePath(jenvFile.getPath());
-                    } else {
-                        state.setProjectJenvExists(false);
-                        state.setProjectJenvFilePath(null);
-                    }
-                }
-                // jenv version file content has changed
-                if (fileEvent instanceof VFileContentChangeEvent changeEvent) {
-                    if (!state.isFileChanged() && !state.isNeedToChangeFile()) {
-                        state.setFileChanged(true);
-                        try {
-                            String jdkVersion = new String(changeEvent.getFile().contentsToByteArray()).trim();
+                if (fileEvent instanceof VFileCreateEvent) {
+                    try {
+                        String jdkVersion = new String(jenvFile.contentsToByteArray()).trim();
+                        if (StringUtils.isEmpty(jdkVersion)) {
+                            // click jEnv status bar action and then show create jEnv version file dialog,
+                            // the content of this file is empty, need to change file.
+                            state.setNeedToChangeFile(true);
+                        } else {
+                            //  use jenv command `jenv local` to create file, the content of this file is not empty,
+                            // no need to change file.
+                            state.setNeedToChangeFile(false);
                             stateService.changeJenvJdkWithNotification(jdkVersion);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        } finally {
-                            state.setFileChanged(false);
                         }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    state.setProjectJenvExists(true);
+                    state.setProjectJenvFilePath(jenvFile.getPath());
+                } else if (fileEvent instanceof VFileDeleteEvent) {
+                    state.setProjectJenvExists(false);
+                    state.setProjectJenvFilePath(null);
+                } else if (fileEvent instanceof VFileContentChangeEvent changeEvent) {
+                    // jenv version file content has changed
+                    if (state.isNeedToChangeFile()) {
+                        // if isNeedToChangeFile method return true means other tasks are modifying this file, so ignore this change event
+                        continue;
+                    }
+                    try {
+                        String jdkVersion = new String(changeEvent.getFile().contentsToByteArray()).trim();
+                        stateService.changeJenvJdkWithNotification(jdkVersion);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }

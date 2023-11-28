@@ -13,6 +13,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -43,9 +45,14 @@ public class JenvJdkModelAction extends DumbAwareAction {
     public void actionPerformed(@NotNull AnActionEvent actionEvent) {
         Project project = actionEvent.getProject();
         if (project != null) {
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (projectSdk != null && jenvJdkModel.getIdeaJdkInfo().getName().equals(projectSdk.getName())) {
+                return;
+            }
             String jdkName = jenvJdkModel.getName();
             JenvState state = JenvStateService.getInstance(project).getState();
             if (state.isProjectJenvExists()) {
+                state.setNeedToChangeFile(true);
                 JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
                 return;
             }
@@ -73,6 +80,9 @@ public class JenvJdkModelAction extends DumbAwareAction {
                             throw new RuntimeException(e);
                         }
                     }));
+                } else {
+                    state.setNeedToChangeFile(false);
+                    JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
                 }
             }
         }
