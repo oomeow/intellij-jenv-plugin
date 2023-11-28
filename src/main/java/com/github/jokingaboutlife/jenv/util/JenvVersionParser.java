@@ -7,7 +7,7 @@ public class JenvVersionParser {
             "temurin", "jetbrains", "kona", "openlogic", "semeru", "semeru_certified", "dragonwell", "ibm", "openjdk", "other"};
 
     public static String tryParse(String jdkVersion) {
-        String resultVersion = null;
+        String resultVersion;
         for (String provider : providers) {
             if (jdkVersion.contains(provider)) {
                 int index = jdkVersion.indexOf("-") + 1;
@@ -15,12 +15,8 @@ public class JenvVersionParser {
                 break;
             }
         }
-        try {
-            JavaVersion javaVersion = JavaVersion.tryParse(jdkVersion);
-            resultVersion = javaVersion != null ? javaVersion.toString() : null;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        JavaVersion javaVersion = JavaVersion.tryParse(jdkVersion);
+        resultVersion = javaVersion != null ? javaVersion.toString() : null;
         return resultVersion;
     }
 

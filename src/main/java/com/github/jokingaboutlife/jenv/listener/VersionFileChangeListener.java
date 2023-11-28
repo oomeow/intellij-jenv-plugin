@@ -66,7 +66,7 @@ public class VersionFileChangeListener implements BulkFileListener {
                             // the content of this file is empty, need to change file.
                             state.setNeedToChangeFile(true);
                         } else {
-                            //  use jenv command `jenv local` to create file, the content of this file is not empty,
+                            // use jenv command `jenv local` to create file, the content of this file is not empty,
                             // no need to change file.
                             state.setNeedToChangeFile(false);
                             stateService.changeJenvJdkWithNotification(jdkVersion);
