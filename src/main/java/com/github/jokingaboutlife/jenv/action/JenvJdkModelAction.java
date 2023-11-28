@@ -35,7 +35,7 @@ public class JenvJdkModelAction extends DumbAwareAction {
         Presentation presentation = getTemplatePresentation();
         presentation.setDescription(jenvJdkModel.getExistsType().getDescription());
         if (isCurrentJdk) {
-            presentation.setIcon(AllIcons.General.InspectionsOK);
+            presentation.setIcon(AllIcons.Actions.SetDefault);
         } else {
             presentation.setIcon(jenvJdkModel.getExistsType().getIcon());
         }

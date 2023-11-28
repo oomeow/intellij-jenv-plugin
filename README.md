@@ -7,12 +7,13 @@ jEnv Helper
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
+**This is a project I just started to learn Intellij plugin development, some code may be written with some problems.**
+
 <!-- Plugin description -->
 
-## This is IntelliJ plugin for jEnv
-> [jEnv] is a command line tool to help you forget how to set the JAVA_HOME environment variable.
->
-> source code: https://github.com/jenv/jenv
+## This is jEnv plugin for Intellij IDEAs
+> [jEnv](https://www.jenv.be) is a command line tool to help you forget how to set the JAVA_HOME environment variable.<br/>
+> jEnv source code: https://github.com/jenv/jenv
 
 - Auto switch IDEA JDK.
 - Add All jEnv JDK option, rename IDEA SDK when some names are same with jEnv JDK.
@@ -21,11 +22,5 @@ jEnv Helper
 
 <!-- Plugin description end -->
 
-
 ## License
-This project is licensed under the [MIT license].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
-[jEnv]: https://www.jenv.be
-[MIT license]: https://github.com/JokingAboutLife/intellij-jenv-plugin/blob/8969efeb61b4cc2aaea465fb07ccac5bbca04272/LICENSE
+This project is licensed under the [MIT license](https://github.com/JokingAboutLife/intellij-jenv-plugin/blob/8969efeb61b4cc2aaea465fb07ccac5bbca04272/LICENSE).

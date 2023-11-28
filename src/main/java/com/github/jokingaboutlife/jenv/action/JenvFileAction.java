@@ -22,7 +22,7 @@ public class JenvFileAction extends DumbAwareAction {
         this.jenvJdkModel = jenvJdkModel;
         Presentation presentation = getTemplatePresentation();
         presentation.setDescription(jenvJdkModel.getExistsType().getDescription());
-        presentation.setIcon(AllIcons.General.OpenDisk);
+        presentation.setIcon(AllIcons.Actions.MenuOpen);
     }
 
     @Override
