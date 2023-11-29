@@ -1,5 +1,7 @@
 package com.github.jokingaboutlife.jenv.constant;
 
+import com.intellij.icons.AllIcons;
+
 import javax.swing.*;
 
 public enum JdkExistsType {
@@ -8,7 +10,7 @@ public enum JdkExistsType {
     OnlyInIDEA("Only exists in IDEA", null),
     Both("Exist in jEnv and IDEA", null),
     OnlyMajorVersionMatch("Not jEnv, but Java major version exist in jEnv", null),
-    OnlyNameNotMatch("Same one, but different name", null),
+    OnlyNameNotMatch("Same one, but different name", AllIcons.General.Warning),
     ;
 
     private final String description;

@@ -244,17 +244,17 @@ public class JenvJdkTableService {
             JenvJdkModel jenvJdk = myJenvJdks.get(i);
             String name = jenvJdk.getName();
             boolean exists = false;
-            boolean onlyNeedUpdate = false;
+            boolean needToRename = false;
             // judgement jEnv jdk is existing in IDEA
             for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
                 if (myIdeaJdk.getHomePath().equals(jenvJdk.getHomePath()) || myIdeaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())) {
                     if (myIdeaJdk.getName().equals(name)) {
                         exists = true;
-                        onlyNeedUpdate = false;
+                        needToRename = false;
                         break;
                     } else {
                         // same home path, different name, only changes the jdk name
-                        onlyNeedUpdate = true;
+                        needToRename = true;
                         JenvRenameModel jenvRenameModel = new JenvRenameModel();
                         jenvRenameModel.setJenvJdk(jenvJdk);
                         jenvRenameModel.setIdeaSdk(myIdeaJdk.getIdeaJdkInfo());
@@ -264,14 +264,14 @@ public class JenvJdkTableService {
                     }
                 }
                 if (myIdeaJdk.getName().equals(name)) {
-                    onlyNeedUpdate = true;
+                    needToRename = true;
                     JenvRenameModel jenvRenameModel = new JenvRenameModel();
                     jenvRenameModel.setJenvJdk(jenvJdk);
                     jenvRenameModel.setIdeaSdk(myIdeaJdk.getIdeaJdkInfo());
                     renameModelList.add(jenvRenameModel);
                 }
             }
-            if (!exists && !onlyNeedUpdate) {
+            if (!exists && !needToRename) {
                 addNewJenvJdkList.add(jenvJdk);
             }
         }
