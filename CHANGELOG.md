@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-11-29
+
 - Add jdk rename dialog when Add jEnv JDK and IDEA has same name JDK.
 - Add create jEnv version file dialog when click action in status bar and this project isn't existing jEnv version file.
 
@@ -16,3 +18,8 @@
 
 - AutoSwitch IDEA JDK when this project is open.
 - Add jEnv Select Dialog in the Tool menu.
+
+[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
+[0.0.2]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/JokingAboutLife/intellij-jenv-plugin/commits/v0.0.1

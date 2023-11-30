@@ -64,7 +64,7 @@ public class JdkRenameDialog extends DialogWrapper {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(size + 4, 2);
         JPanel panel = new JPanel(gridLayoutManager);
         // row 1
-        // notify message
+        // some tips
         Font font = new Font("Arial", Font.BOLD, 14);
         JLabel tip1Label = new JLabel("Choose JDK to update name.");
         tip1Label.setFont(font);
@@ -150,6 +150,7 @@ public class JdkRenameDialog extends DialogWrapper {
                 }
             });
             if (jenvRenameModel.isBelongJenv()) {
+                sdkNameCheckBox.setEnabled(false);
                 textField.setText(jenvRenameModel.getChangeName());
                 textField.setEnabled(false);
             }
@@ -165,7 +166,7 @@ public class JdkRenameDialog extends DialogWrapper {
         StringBuilder builder = new StringBuilder();
         Map<String, JenvRenameModel> map = new HashMap<>();
         for (JenvRenameModel jenvRenameModel : renameModelList) {
-            if (!jenvRenameModel.isSelected()) {
+            if (!jenvRenameModel.isSelected() || jenvRenameModel.isBelongJenv()) {
                 continue;
             }
             String name = jenvRenameModel.getIdeaSdk().getName();

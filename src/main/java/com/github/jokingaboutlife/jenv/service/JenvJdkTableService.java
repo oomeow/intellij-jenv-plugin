@@ -245,7 +245,7 @@ public class JenvJdkTableService {
             String name = jenvJdk.getName();
             boolean exists = false;
             boolean needToRename = false;
-            // judgement jEnv jdk is existing in IDEA
+            // judgement jEnv jdk exists in IDEA
             for (JenvJdkModel myIdeaJdk : myIdeaJdks) {
                 if (myIdeaJdk.getHomePath().equals(jenvJdk.getHomePath()) || myIdeaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())) {
                     if (myIdeaJdk.getName().equals(name)) {
