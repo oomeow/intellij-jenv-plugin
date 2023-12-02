@@ -3,6 +3,11 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
+### Fixes
+- JDK with the same name was added too much in the rename dialog
+### Other
+- rename dialog skip validation of the jenv JDK
+- remove all checkBox in rename dialog, as the dialog is only displayed when you click on the "Add All" action, which means that all the jenv jdks must be added.
 
 ## [0.0.3] - 2023-11-29
 

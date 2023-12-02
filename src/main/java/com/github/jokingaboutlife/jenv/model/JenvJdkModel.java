@@ -13,7 +13,7 @@ public class JenvJdkModel implements Comparable<JenvJdkModel> {
     private String majorVersion;
     private String homePath;
     private String canonicalPath;
-    // IDEA jdk need
+    // exists in IDEA jdk need
     private JdkExistsType existsType;
     private Sdk ideaJdkInfo;
 
