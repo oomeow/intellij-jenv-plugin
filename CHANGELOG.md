@@ -3,10 +3,16 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
+
+## [0.0.4] - 2023-12-02
+
 ### Fixes
+
 - JDK with the same name was added too much in the rename dialog
 - click cancel action in the rename dialog, the jenv JDKs that only need to be updated will be added again.
+
 ### Other
+
 - rename dialog skip validation of the jenv JDK
 - remove all checkBox in rename dialog, as the dialog is only displayed when you click on the "Add All" action, which means that all the jenv jdks must be added.
 - add tool tip text in the rename dialog
@@ -26,7 +32,8 @@
 - AutoSwitch IDEA JDK when this project is open.
 - Add jEnv Select Dialog in the Tool menu.
 
-[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/JokingAboutLife/intellij-jenv-plugin/commits/v0.0.1
