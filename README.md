@@ -3,9 +3,8 @@
 jEnv Helper
 ===========
 
-![Build](https://github.com/JokingAboutLife/intellij-jenv-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/23220-jenv-helper)](https://plugins.jetbrains.com/plugin/23220-jenv-helper)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/23220-jenv-helper)](https://plugins.jetbrains.com/plugin/23220-jenv-helper)
 
 **This is a project I just started to learn Intellij plugin development, some code may be written with some problems.**
 
