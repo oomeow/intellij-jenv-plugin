@@ -144,19 +144,19 @@ public class JdkRenameDialog extends DialogWrapper {
             String name = jenvRenameModel.getIdeaSdk().getName();
             String changeName = jenvRenameModel.getChangeName();
             if (StringUtils.isEmpty(changeName)) {
-                builder.append("[").append(name).append("]: ").append("rename is empty.<br>");
+                builder.append("[").append(name).append("]: ").append("The change name is empty.<br>");
                 continue;
             }
             if (!jenvRenameModel.isBelongJenv() && jenvNameList.contains(changeName)) {
-                builder.append("[").append(name).append("]: ").append("the change name ").append("[").append(changeName).append("] will add as jenv JDK.<br>");
+                builder.append("[").append(name).append("]: ").append("The change name ").append("[").append(changeName).append("] will add as jenv JDK.<br>");
                 continue;
             }
             if (changeName.equals(name)) {
-                builder.append("[").append(name).append("]: ").append("rename not to same.<br>");
+                builder.append("[").append(name).append("]: ").append("The change name not to same.<br>");
                 continue;
             }
             if (ideaNameList.contains(changeName)) {
-                builder.append("[").append(name).append("]: ").append("the change name ").append("[").append(changeName).append("] has exists in IDEA.<br>");
+                builder.append("[").append(name).append("]: ").append("The change name ").append("[").append(changeName).append("] has exists in IDEA.<br>");
                 continue;
             }
             if (map.get(changeName) != null) {

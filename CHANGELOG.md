@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Fixes
 - JDK with the same name was added too much in the rename dialog
+- click cancel action in the rename dialog, the jenv JDKs that only need to be updated will be added again.
 ### Other
 - rename dialog skip validation of the jenv JDK
 - remove all checkBox in rename dialog, as the dialog is only displayed when you click on the "Add All" action, which means that all the jenv jdks must be added.

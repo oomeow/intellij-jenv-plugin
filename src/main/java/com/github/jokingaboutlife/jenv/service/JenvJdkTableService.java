@@ -291,7 +291,9 @@ public class JenvJdkTableService {
         for (JenvJdkModel jenvJdk : allJenvJdks) {
             boolean exists = false;
             for (JenvJdkModel ideaJdk : allIdeaJdks) {
-                if (ideaJdk.getName().equals(jenvJdk.getName())) {
+                if ((ideaJdk.getHomePath().equals(jenvJdk.getHomePath())
+                        || (jenvJdk.getCanonicalPath() != null && ideaJdk.getHomePath().equals(jenvJdk.getCanonicalPath())))
+                        || ideaJdk.getName().equals(jenvJdk.getName())) {
                     exists = true;
                     break;
                 }
