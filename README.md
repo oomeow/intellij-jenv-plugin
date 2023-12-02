@@ -3,8 +3,9 @@
 jEnv Helper
 ===========
 
-[![Version](https://img.shields.io/jetbrains/plugin/v/23220-jenv-helper)](https://plugins.jetbrains.com/plugin/23220-jenv-helper)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/23220-jenv-helper)](https://plugins.jetbrains.com/plugin/23220-jenv-helper)
+[![Version](https://img.shields.io/jetbrains/plugin/v/23220-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/23220-jenv-helper?style=flat-square)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/23220-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/23220-jenv-helper?style=flat-square)
+[![License](https://img.shields.io/github/license/JokingAboutLife/intellij-jenv-plugin.svg?style=flat-square)](https://img.shields.io/github/license/JokingAboutLife/intellij-jenv-plugin.svg?style=flat-square)
 
 **This is a project I just started to learn Intellij plugin development, some code may be written with some problems.**
 
