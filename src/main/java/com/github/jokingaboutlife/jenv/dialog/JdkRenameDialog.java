@@ -57,9 +57,8 @@ public class JdkRenameDialog extends DialogWrapper {
         JPanel panel = new JPanel(gridLayoutManager);
         // row 1
         // some tips
-        Font font = new Font("Arial", Font.BOLD, 14);
-        JLabel tip2Label = new JLabel("Belong to jEnv JDK has its name and it is not be edited.");
-        tip2Label.setFont(font);
+        JLabel tip2Label = new JLabel("JDKs that belong to jEnv have their own names and are not editable");
+        tip2Label.setFont(new Font("Arial", Font.BOLD, 14));
         tip2Label.setForeground(JBColor.gray);
         tip2Label.setIcon(AllIcons.General.Information);
         GridConstraints tip2GirdConst = new GridConstraints();
@@ -101,6 +100,7 @@ public class JdkRenameDialog extends DialogWrapper {
             panel.add(jdkNameLabel, jdkNameConstraints);
 
             JBTextField textField = new JBTextField();
+            textField.setToolTipText(jenvRenameModel.getIdeaSdk().getVersionString());
             GridConstraints editConstraints = new GridConstraints();
             editConstraints.setRow(row);
             editConstraints.setColumn(col + 1);
