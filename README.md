@@ -21,6 +21,9 @@ jEnv Helper
 - Listening the change of project jEnv version file `.java-version` and change this project JDK.
 - Change project JDK by status bar, when jEnv version file does not exist in this project, show message dialog to create jEnv version file in this project.
 
+## Screenshot
+<img src="./plugin-screenshot.png" alt="screenshot" align="center">
+
 <!-- Plugin description end -->
 
 ## License
