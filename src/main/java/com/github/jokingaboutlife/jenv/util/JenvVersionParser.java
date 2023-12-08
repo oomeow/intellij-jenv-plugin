@@ -7,6 +7,9 @@ public class JenvVersionParser {
             "temurin", "jetbrains", "kona", "openlogic", "semeru", "semeru_certified", "dragonwell", "ibm", "openjdk", "other"};
 
     public static String tryParse(String jdkVersion) {
+        if (jdkVersion == null) {
+            return null;
+        }
         String resultVersion;
         for (String provider : providers) {
             if (jdkVersion.contains(provider)) {
@@ -21,6 +24,9 @@ public class JenvVersionParser {
     }
 
     public static String tryParseAndGetShortVersion(String jdkVersion) {
+        if (jdkVersion == null) {
+            return null;
+        }
         String shortVersion;
         String javaVersion = tryParse(jdkVersion);
         String[] split = javaVersion.split("[._]");
@@ -38,6 +44,9 @@ public class JenvVersionParser {
     }
 
     public static String tryParseAndGetMajorVersion(String jdkVersion) {
+        if (jdkVersion == null) {
+            return null;
+        }
         String majorVersion;
         String jdkVersionInfo = tryParse(jdkVersion);
         try {

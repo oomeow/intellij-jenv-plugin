@@ -140,10 +140,10 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
             }
         });
-        List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
+        List<JenvJdkModel> allJenvJdkFiles = JenvJdkTableService.getInstance().getAllJenvJdkFiles();
         DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> "Show jEnv All");
-        for (JenvJdkModel jenvJdkModel : allJenvJdks) {
-            JenvFileAction jenvFileAction = new JenvFileAction(jenvJdkModel);
+        for (JenvJdkModel jenvJdkFile : allJenvJdkFiles) {
+            JenvFileAction jenvFileAction = new JenvFileAction(jenvJdkFile);
             more.add(jenvFileAction);
         }
         actions.add(more);

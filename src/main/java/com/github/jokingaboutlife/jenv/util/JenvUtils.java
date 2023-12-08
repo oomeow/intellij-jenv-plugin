@@ -28,16 +28,6 @@ public class JenvUtils {
         return files;
     }
 
-    public static boolean checkIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
-        JdkExistsType existsType = jenvJdkModel.getExistsType();
-        return existsType.equals(JdkExistsType.OnlyInJEnv) || existsType.equals(JdkExistsType.Both) || existsType.equals(JdkExistsType.OnlyNameNotMatch);
-    }
-
-    public static boolean checkIsIdea(@NotNull JenvJdkModel jenvJdkModel) {
-        JdkExistsType existsType = jenvJdkModel.getExistsType();
-        return !existsType.equals(JdkExistsType.OnlyInJEnv);
-    }
-
     public static boolean checkIsIdeaAndIsJenv(@NotNull JenvJdkModel jenvJdkModel) {
         JdkExistsType existsType = jenvJdkModel.getExistsType();
         return existsType.equals(JdkExistsType.OnlyNameNotMatch) || existsType.equals(JdkExistsType.Both);

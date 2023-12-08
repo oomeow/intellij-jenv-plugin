@@ -42,9 +42,9 @@ public class JdkRenameDialog extends DialogWrapper {
         for (JenvJdkModel jenvJdkModel : JenvJdkTableService.getInstance().getAllIdeaJdks()) {
             ideaNameList.add(jenvJdkModel.getName());
         }
-        List<JenvJdkModel> allJenvJdks = JenvJdkTableService.getInstance().getAllJenvJdks();
-        for (JenvJdkModel jenvJdkModel : allJenvJdks) {
-            jenvNameList.add(jenvJdkModel.getName());
+        List<JenvJdkModel> allJenvJdkFiles = JenvJdkTableService.getInstance().getAllJenvJdkFiles();
+        for (JenvJdkModel jenvJdkFile : allJenvJdkFiles) {
+            jenvNameList.add(jenvJdkFile.getName());
         }
     }
 
@@ -92,15 +92,17 @@ public class JdkRenameDialog extends DialogWrapper {
             row = row + 1;
             int col = 0;
             Sdk sdk = jenvRenameModel.getIdeaSdk();
+            // label
             JLabel jdkNameLabel = new JLabel(sdk.getName());
             GridConstraints jdkNameConstraints = new GridConstraints();
             jdkNameConstraints.setRow(row);
             jdkNameConstraints.setColumn(col);
             jdkNameConstraints.setAnchor(GridConstraints.ANCHOR_WEST);
             panel.add(jdkNameLabel, jdkNameConstraints);
-
+            // textFiled
             JBTextField textField = new JBTextField();
             textField.setToolTipText(jenvRenameModel.getIdeaSdk().getVersionString());
+            textField.setHorizontalAlignment(SwingConstants.CENTER);
             GridConstraints editConstraints = new GridConstraints();
             editConstraints.setRow(row);
             editConstraints.setColumn(col + 1);
