@@ -320,6 +320,7 @@ public class JenvJdkTableService {
             boolean exists = false;
             for (JenvJdkModel ideaJdk : myIdeaJdks) {
                 if ((ideaJdk.getHomePath().equals(jenvJdkFile.getHomePath())
+                        // TODO: canonical path need vertical only once
                         || (jenvJdkFile.getCanonicalPath() != null && ideaJdk.getHomePath().equals(jenvJdkFile.getCanonicalPath())))
                         || ideaJdk.getName().equals(jenvJdkFile.getName())) {
                     exists = true;

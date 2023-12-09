@@ -51,9 +51,8 @@ public class VersionFileChangeListener implements BulkFileListener {
                 Project guessProject = ProjectUtil.guessProjectForFile(jenvFile);
                 if (guessProject == null) {
                     continue;
-                } else {
-                    currentProject = guessProject;
                 }
+                currentProject = guessProject;
             }
             if (StringUtils.equals(currentProject.getBasePath(), jenvFile.getParent().getPath())) {
                 JenvStateService stateService = JenvStateService.getInstance(currentProject);

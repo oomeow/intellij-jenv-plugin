@@ -23,12 +23,13 @@ public class JdkChangeListener implements ProjectJdkTable.Listener {
         for (Project project : openProjects) {
             // if the deleted jdk is the current project jdk, set the project jdk to null before deleting it
             Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            if (projectSdk != null) {
-                String projectJdkName = projectSdk.getName();
-                String jdkName = jdk.getName();
-                if (projectJdkName.equals(jdkName)) {
-                    ApplicationManager.getApplication().invokeLater(() -> SdkConfigurationUtil.setDirectoryProjectSdk(project, null));
-                }
+            if (projectSdk == null) {
+                continue;
+            }
+            String projectJdkName = projectSdk.getName();
+            String jdkName = jdk.getName();
+            if (projectJdkName.equals(jdkName)) {
+                ApplicationManager.getApplication().invokeLater(() -> SdkConfigurationUtil.setDirectoryProjectSdk(project, null));
             }
         }
         JenvJdkTableService.getInstance().removeFromJenvJdks(jdk);
