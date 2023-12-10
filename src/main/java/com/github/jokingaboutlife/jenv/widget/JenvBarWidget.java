@@ -5,6 +5,7 @@ import com.github.jokingaboutlife.jenv.action.JenvJdkModelAction;
 import com.github.jokingaboutlife.jenv.icons.JenvIcons;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
+import com.github.jokingaboutlife.jenv.service.JenvService;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdeBundle;
@@ -15,6 +16,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -68,10 +70,14 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
-                JBPopup popup = getPopup(projectJdkName, dataContext);
-                Dimension dimension = popup.getContent().getPreferredSize();
-                Point at = new Point(0, -dimension.height);
-                popup.show(new RelativePoint(component, at));
+                if (JenvService.getInstance().isJenvInstalled()) {
+                    JBPopup popup = getPopup(projectJdkName, dataContext);
+                    Dimension dimension = popup.getContent().getPreferredSize();
+                    Point at = new Point(0, -dimension.height);
+                    popup.show(new RelativePoint(component, at));
+                } else {
+                    Messages.showInfoMessage("jEnv not install, please install jEnv", "jEnv not installed");
+                }
                 return true;
             }
         };

@@ -1,12 +1,11 @@
 package com.github.jokingaboutlife.jenv.service;
 
-import com.github.jokingaboutlife.jenv.JenvBundle;
 import com.github.jokingaboutlife.jenv.config.JenvState;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.util.JenvNotifications;
-import com.github.jokingaboutlife.jenv.util.JenvUtils;
 import com.github.jokingaboutlife.jenv.util.JenvVersionParser;
 import com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -26,27 +25,19 @@ import java.util.Arrays;
 
 public class JenvService {
 
-    private boolean isJenvInstalled;
-
-    public boolean isJenvInstalled() {
-        return isJenvInstalled;
-    }
-
     public static JenvService getInstance() {
         return ApplicationManager.getApplication().getService(JenvService.class);
     }
 
+    public void setJenvInstalled(boolean jenvInstalled) {
+        PropertiesComponent.getInstance().setValue("jEnv.installed", jenvInstalled);
+    }
+
+    public boolean isJenvInstalled() {
+        return PropertiesComponent.getInstance().getBoolean("jEnv.installed", false);
+    }
+
     public void initProject(Project project) {
-        if (!isJenvInstalled) {
-            if (JenvUtils.checkJenvInstalled()) {
-                this.isJenvInstalled = true;
-            } else {
-                String title = JenvBundle.message("notification.jenv.not.installed.title");
-                String content = JenvBundle.message("notification.jenv.not.installed.content");
-                JenvNotifications.showErrorNotification(title, content, project, false);
-                return;
-            }
-        }
         JenvState state = JenvStateService.getInstance(project).getState();
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));
@@ -69,7 +60,7 @@ public class JenvService {
                     for (Sdk sdk : allJdks) {
                         if (sdk.getSdkType() instanceof JavaSdkType) {
                             String ideaShortVersion = JenvVersionParser.tryParseAndGetShortVersion(sdk.getVersionString());
-                            if (ideaShortVersion.equals(jdkName)) {
+                            if (ideaShortVersion != null && ideaShortVersion.equals(jdkName)) {
                                 SdkConfigurationUtil.setDirectoryProjectSdk(project, sdk);
                                 break;
                             }
