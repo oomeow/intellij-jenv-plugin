@@ -11,7 +11,7 @@ jEnv Helper
 
 <!-- Plugin description -->
 
-## This is a jEnv plugin for Intellij IDEA
+## This is a jEnv plugin for IntelliJ IDEA
 
 > [jEnv](https://www.jenv.be) is a command line tool to help you forget how to set the JAVA_HOME environment variable.<br/>
 > jEnv source code: https://github.com/jenv/jenv
