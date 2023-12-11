@@ -5,7 +5,6 @@ import com.github.jokingaboutlife.jenv.action.JenvJdkModelAction;
 import com.github.jokingaboutlife.jenv.icons.JenvIcons;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
-import com.github.jokingaboutlife.jenv.service.JenvService;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.IdeBundle;
@@ -16,7 +15,6 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -70,14 +68,10 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
-                if (JenvService.getInstance().isJenvInstalled()) {
-                    JBPopup popup = getPopup(projectJdkName, dataContext);
-                    Dimension dimension = popup.getContent().getPreferredSize();
-                    Point at = new Point(0, -dimension.height);
-                    popup.show(new RelativePoint(component, at));
-                } else {
-                    Messages.showInfoMessage("jEnv not install, please install jEnv", "jEnv not installed");
-                }
+                JBPopup popup = getPopup(projectJdkName, dataContext);
+                Dimension dimension = popup.getContent().getPreferredSize();
+                Point at = new Point(0, -dimension.height);
+                popup.show(new RelativePoint(component, at));
                 return true;
             }
         };
@@ -85,37 +79,31 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         project.getMessageBus().connect().subscribe(ProjectJdkTable.JDK_TABLE_TOPIC, new ProjectJdkTable.Listener() {
             @Override
             public void jdkAdded(@NotNull Sdk jdk) {
-                updateStatusBar(statusBar);
+                statusBar.updateWidget(JENV_STATUS_BAR_ID);
             }
 
             @Override
             public void jdkRemoved(@NotNull Sdk jdk) {
-                updateStatusBar(statusBar);
+                statusBar.updateWidget(JENV_STATUS_BAR_ID);
             }
 
             @Override
             public void jdkNameChanged(@NotNull Sdk jdk, @NotNull String previousName) {
-                updateStatusBar(statusBar);
+                statusBar.updateWidget(JENV_STATUS_BAR_ID);
             }
         });
-        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> updateStatusBar(statusBar));
-    }
-
-    private void updateStatusBar(@NotNull StatusBar statusBar) {
-        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (projectSdk != null) {
-            setIcon(JenvIcons.JENV_JDK);
-            setText(projectSdk.getName());
-        } else {
-            setIcon(AllIcons.General.Error);
-            setText("No JDK");
-        }
-        statusBar.updateWidget(JENV_STATUS_BAR_ID);
+        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> statusBar.updateWidget(JENV_STATUS_BAR_ID));
     }
 
     @Override
     public @Nullable Icon getIcon() {
-        return JenvIcons.JENV_JDK;
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            setText(projectSdk.getName());
+            return JenvIcons.JENV_JDK;
+        }
+        setText("No JDK");
+        return AllIcons.General.Error;
     }
 
     private ListPopup getPopup(String currentJdkName, DataContext dataContext) {
