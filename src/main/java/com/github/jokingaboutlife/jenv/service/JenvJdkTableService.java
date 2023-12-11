@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JenvJdkTableService {
 
@@ -192,72 +193,23 @@ public class JenvJdkTableService {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 List<JenvRenameModel> renameJdkList = new ArrayList<>();
-                // TODO: find and remove duplicate home path JDKs
                 // jenv name Map for the jenv home path
-                Map<String, String> homePathNameMap = new HashMap<>();
-                // jenv name Map group by the jenv canonical path
-                Map<String, List<String>> canonicalPathNameListMap = new HashMap<>();
+                Map<String, String> jenvHomePathNameMap = new HashMap<>();
+                // jenv name Map for the jenv canonical path
+                List<String> jenvCanonicalPathList = new ArrayList<>();
                 myJenvJdkFiles.forEach(jenvJdkModel -> {
                     String homePath = jenvJdkModel.getHomePath();
-                    homePathNameMap.put(homePath, jenvJdkModel.getName());
-                    if (jenvJdkModel.getCanonicalPath() != null) {
-                        if (canonicalPathNameListMap.get(jenvJdkModel.getCanonicalPath()) == null) {
-                            List<String> candidateName = new ArrayList<>();
-                            candidateName.add(jenvJdkModel.getName());
-                            canonicalPathNameListMap.put(jenvJdkModel.getCanonicalPath(), candidateName);
-                        } else {
-                            canonicalPathNameListMap.get(jenvJdkModel.getCanonicalPath()).add(jenvJdkModel.getName());
-                        }
+                    jenvHomePathNameMap.put(homePath, jenvJdkModel.getName());
+                    String canonicalPath = jenvJdkModel.getCanonicalPath();
+                    if (canonicalPath != null && !jenvCanonicalPathList.contains(canonicalPath)) {
+                        jenvCanonicalPathList.add(canonicalPath);
                     }
                 });
-
-                // find the name of the JDK with duplicate paths
-                Map<String, String> ideaHomePathNameMap = new HashMap<>();
-                List<String> duplicateJenvJdks = new ArrayList<>();
-                myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndIsJenv)
-                        .forEach(o -> {
-                            String homePath = o.getHomePath();
-                            if (ideaHomePathNameMap.get(homePath) == null) {
-                                ideaHomePathNameMap.put(homePath, o.getName());
-                            } else {
-                                duplicateJenvJdks.add(ideaHomePathNameMap.get(homePath));
-                                duplicateJenvJdks.add(o.getName());
-                            }
-                        });
-
-                // available change names for the canonical path
-                for (Map.Entry<String, List<String>> entry : canonicalPathNameListMap.entrySet()) {
-                    String canonicalPath = entry.getKey();
-                    List<String> names = entry.getValue();
-                    List<String> excludeName = new ArrayList<>();
-                    for (String name : names) {
-                        Optional<JenvJdkModel> find = myIdeaJdks.stream()
-                                .filter(JenvUtils::checkIsIdeaAndIsJenv)
-                                .filter(o -> !o.getHomePath().equals(canonicalPath) && o.getName().equals(name))
-                                .findFirst();
-                        if (find.isEmpty()) {
-                            excludeName.add(name);
-                        }
-                    }
-                    entry.setValue(excludeName);
-                }
-                Map<String, String> canonicalPathMap = new HashMap<>();
-                canonicalPathNameListMap.forEach((key, value) -> {
-                    if (!value.isEmpty()) {
-                        canonicalPathMap.put(key, value.get(0));
-                    }
-                });
-
-                // TODO: show duplicate JDK dialog, select which JDK to keep?
-                // temporarily delete all duplicate JDK
-                ApplicationManager.getApplication().invokeAndWait(() -> {
-                    for (String duplicateJenvJdk : duplicateJenvJdks) {
-                        SdkConfigurationUtil.removeSdk(findJenvJdkByName(duplicateJenvJdk).getIdeaJdkInfo());
-                    }
-                });
-
+                // delete duplicate jEnv jdk (if jEnv jdk canonical path exists, delete all.
+                //      if jEnv jdk home path more than one, delete them until only exists one)
+                deleteDuplicateJenvJdk(indicator, jenvCanonicalPathList);
                 // analyze jEnv jdk
-                analyzeJenvJdk(indicator, homePathNameMap, canonicalPathMap, renameJdkList);
+                analyzeJenvJdk(indicator, jenvHomePathNameMap, renameJdkList);
                 // rename IDEA SDK dialog
                 needToRenameDialog(indicator, project, renameJdkList);
                 // add jEnv SDK to IDEA
@@ -266,7 +218,41 @@ public class JenvJdkTableService {
         });
     }
 
-    private void analyzeJenvJdk(@NotNull ProgressIndicator indicator, Map<String, String> jenvJdkFilesMap, Map<String, String> canonicalPathMap, List<JenvRenameModel> renameJdkList) {
+    private void deleteDuplicateJenvJdk(@NotNull ProgressIndicator indicator, List<String> jenvCanonicalPathList) {
+        indicator.setText("Find duplicate jEnv JDK");
+        // remove all duplicate jenv jdks
+        List<JenvJdkModel> deleteJdks = new ArrayList<>();
+        Map<String, List<JenvJdkModel>> homePathGroup = myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndIsJenv)
+                .collect(Collectors.groupingBy(JenvJdkModel::getHomePath));
+        homePathGroup.forEach((key, value) -> {
+            if (jenvCanonicalPathList.contains(key)) {
+                deleteJdks.addAll(value);
+            } else if (value.size() > 1) {
+                boolean existsBoth = false;
+                for (JenvJdkModel jenvJdkModel : value) {
+                    if (JenvUtils.checkIsBoth(jenvJdkModel)) {
+                        existsBoth = true;
+                    } else {
+                        deleteJdks.add(jenvJdkModel);
+                    }
+                }
+                if (!existsBoth) {
+                    deleteJdks.remove(deleteJdks.size() - 1);
+                }
+            }
+        });
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            indicator.setText("Remove Duplicate jEnv JDK");
+            myIdeaJdks.removeIf(deleteJdks::contains);
+            for (int i = 0; i < deleteJdks.size(); i++) {
+                indicator.setFraction((double) (i + 1) / deleteJdks.size());
+                JenvJdkModel deleteJdk = deleteJdks.get(i);
+                SdkConfigurationUtil.removeSdk(deleteJdk.getIdeaJdkInfo());
+            }
+        });
+    }
+
+    private void analyzeJenvJdk(@NotNull ProgressIndicator indicator, Map<String, String> jenvJdkFilesMap, List<JenvRenameModel> renameJdkList) {
         indicator.setText("Analyze");
         List<JenvRenameModel> jenvJdkNeedRenameList = myIdeaJdks.stream()
                 .filter(o -> o.getExistsType().equals(JdkExistsType.OnlyNameNotMatch))
@@ -277,8 +263,6 @@ public class JenvJdkTableService {
                     String homePath = jenvJdkModel.getHomePath();
                     if (jenvJdkFilesMap.get(homePath) != null) {
                         jenvRenameModel.setChangeName(jenvJdkFilesMap.get(homePath));
-                    } else if (canonicalPathMap.get(homePath) != null) {
-                        jenvRenameModel.setChangeName(canonicalPathMap.get(homePath));
                     }
                     return jenvRenameModel;
                 }).toList();
@@ -320,7 +304,6 @@ public class JenvJdkTableService {
             boolean exists = false;
             for (JenvJdkModel ideaJdk : myIdeaJdks) {
                 if ((ideaJdk.getHomePath().equals(jenvJdkFile.getHomePath())
-                        // TODO: canonical path need vertical only once
                         || (jenvJdkFile.getCanonicalPath() != null && ideaJdk.getHomePath().equals(jenvJdkFile.getCanonicalPath())))
                         || ideaJdk.getName().equals(jenvJdkFile.getName())) {
                     exists = true;
