@@ -3,8 +3,11 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
-- adjust the position of the jEnv status bar 
+- change the position of the jEnv status bar, before lineSeparator and after position 
 - remove duplicate jEnv jdk. if jEnv jdk canonical path exists, delete all. if jEnv jdk home path has one more, delete them until one exists.
+
+### Fixes
+- jEnv status bar icon no change when the project not set up JDK
 
 ## [0.0.4] - 2023-12-02
 
