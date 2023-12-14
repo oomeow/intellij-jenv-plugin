@@ -3,7 +3,6 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
-- change the position of the jEnv status bar, before lineSeparator and after position 
 - remove duplicate jEnv jdk. Canonical path exists, delete all. Multiple same home path, delete them until only one exists.
 - add `Invalid Jenv` separator in the pop menu of jEnv status bar, click item to remove this JDK.
 

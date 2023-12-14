@@ -13,7 +13,7 @@
         <applicationService serviceImplementation="com.github.jokingaboutlife.jenv.service.JenvJdkTableService"/>
         <projectService serviceImplementation="com.github.jokingaboutlife.jenv.service.JenvStateService"/>
         <postStartupActivity implementation="com.github.jokingaboutlife.jenv.activity.JenvProjectStartupActivity"/>
-        <statusBarWidgetFactory id="jEnv.Widget" order="before lineSeparatorWidget, after positionWidget"
+        <statusBarWidgetFactory id="jEnv.Widget" order="before positionWidget, before Position, first"
                                 implementation="com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory"/>
         <notificationGroup id="jEnv" displayType="BALLOON" isLogByDefault="true"/>
     </extensions>
