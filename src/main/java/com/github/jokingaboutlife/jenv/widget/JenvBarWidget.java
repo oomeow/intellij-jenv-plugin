@@ -68,6 +68,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
+                JenvJdkTableService.getInstance().checkJenvJdksFiles();
                 JBPopup popup = getPopup(projectJdkName, dataContext);
                 Dimension dimension = popup.getContent().getPreferredSize();
                 Point at = new Point(0, -dimension.height);
@@ -79,20 +80,32 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         project.getMessageBus().connect().subscribe(ProjectJdkTable.JDK_TABLE_TOPIC, new ProjectJdkTable.Listener() {
             @Override
             public void jdkAdded(@NotNull Sdk jdk) {
-                statusBar.updateWidget(JENV_STATUS_BAR_ID);
+                updateStatusBar(statusBar);
             }
 
             @Override
             public void jdkRemoved(@NotNull Sdk jdk) {
-                statusBar.updateWidget(JENV_STATUS_BAR_ID);
+                updateStatusBar(statusBar);
             }
 
             @Override
             public void jdkNameChanged(@NotNull Sdk jdk, @NotNull String previousName) {
-                statusBar.updateWidget(JENV_STATUS_BAR_ID);
+                updateStatusBar(statusBar);
             }
         });
-        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> statusBar.updateWidget(JENV_STATUS_BAR_ID));
+        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> updateStatusBar(statusBar));
+    }
+
+    private void updateStatusBar(@NotNull StatusBar statusBar) {
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            setIcon(JenvIcons.JENV_JDK);
+            setText(projectSdk.getName());
+        } else {
+            setIcon(AllIcons.General.Error);
+            setText("No JDK");
+        }
+        statusBar.updateWidget(JENV_STATUS_BAR_ID);
     }
 
     @Override
@@ -134,8 +147,8 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
             }
         });
-        List<JenvJdkModel> allJenvJdkFiles = JenvJdkTableService.getInstance().getAllJenvJdkFiles();
         DefaultActionGroup more = DefaultActionGroup.createPopupGroup(() -> "Show jEnv All");
+        List<JenvJdkModel> allJenvJdkFiles = JenvJdkTableService.getInstance().getAllJenvJdkFiles();
         for (JenvJdkModel jenvJdkFile : allJenvJdkFiles) {
             JenvFileAction jenvFileAction = new JenvFileAction(jenvJdkFile);
             more.add(jenvFileAction);
@@ -145,6 +158,9 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         actions.addSeparator("jEnv");
         List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
         createActionWithMore(actions, jdksInIdeaAndInJenv, currentJdkName, 5);
+        actions.addSeparator("Invalid jEnv");
+        List<JenvJdkModel> jdksInIdeaAndInvalidJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInvalidJenv();
+        createActionWithMore(actions, jdksInIdeaAndInvalidJenv, currentJdkName, 3);
         actions.addSeparator("IDEA");
         List<JenvJdkModel> jdksInIdeaAndNotInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndNotInJenv();
         createActionWithMore(actions, jdksInIdeaAndNotInJenv, currentJdkName, 3);

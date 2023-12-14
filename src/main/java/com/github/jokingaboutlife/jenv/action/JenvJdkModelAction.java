@@ -14,6 +14,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -46,7 +47,12 @@ public class JenvJdkModelAction extends DumbAwareAction {
         Project project = actionEvent.getProject();
         if (project != null) {
             Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (jenvJdkModel.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid)) {
+                showInvalidJdkMessage(project, projectSdk);
+                return;
+            }
             if (projectSdk != null && jenvJdkModel.getIdeaJdkInfo().getName().equals(projectSdk.getName())) {
+                // project JDK is current JDK, no need to change
                 return;
             }
             String jdkName = jenvJdkModel.getName();
@@ -54,38 +60,55 @@ public class JenvJdkModelAction extends DumbAwareAction {
             if (state.isProjectJenvExists()) {
                 state.setNeedToChangeFile(true);
                 JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
-                return;
-            }
-            if (!jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyInIDEA)) {
-                String title = JenvBundle.message("messages.create.jenv.version.file.title");
-                String message = JenvBundle.message("messages.create.jenv.version.file.content");
-                int result = Messages.showYesNoDialog(message, title, AllIcons.General.Information);
-                if (result == Messages.YES) {
-                    ApplicationManager.getApplication().invokeLater(() -> WriteCommandAction.runWriteCommandAction(project, () -> {
-                        try {
-                            String basePath = project.getBasePath();
-                            if (basePath != null) {
-                                VirtualFile baseDir = VirtualFileManager.getInstance().findFileByNioPath(Paths.get(basePath));
-                                if (baseDir != null) {
-                                    VirtualFile jenvFile = baseDir.createChildData(project, JenvConstants.VERSION_FILE);
-                                    JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
-                                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
-                                    PsiFile psiFile = PsiManager.getInstance(project).findFile(jenvFile);
-                                    if (psiFile != null) {
-                                        psiFile.navigate(true);
-                                    }
-                                }
-                            }
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }));
-                } else {
-                    state.setNeedToChangeFile(false);
-                    JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
-                }
+            } else if (!jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyInIDEA)) {
+                // change jdk belong to jenv and the jenv version file not exists
+                createJenvVersionFile(project, jdkName, state);
             }
         }
     }
 
+    private void showInvalidJdkMessage(Project project, Sdk projectSdk) {
+        String title = JenvBundle.message("messages.invalid.home.path.jdk.title");
+        String content = JenvBundle.message("messages.invalid.home.path.jdk.content");
+        int result = Messages.showYesNoDialog(project, content, title, AllIcons.General.Information);
+        if (result == Messages.YES) {
+            ApplicationManager.getApplication().invokeAndWait(() -> {
+                if (projectSdk != null && jenvJdkModel.getIdeaJdkInfo().getName().equals(projectSdk.getName())) {
+                    SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
+                }
+                SdkConfigurationUtil.removeSdk(jenvJdkModel.getIdeaJdkInfo());
+            });
+        }
+    }
+
+
+    private static void createJenvVersionFile(Project project, String jdkName, JenvState state) {
+        String title = JenvBundle.message("messages.create.jenv.version.file.title");
+        String message = JenvBundle.message("messages.create.jenv.version.file.content");
+        int result = Messages.showYesNoDialog(project, message, title, AllIcons.General.Information);
+        if (result == Messages.YES) {
+            ApplicationManager.getApplication().invokeLater(() -> WriteCommandAction.runWriteCommandAction(project, () -> {
+                try {
+                    String basePath = project.getBasePath();
+                    if (basePath != null) {
+                        VirtualFile baseDir = VirtualFileManager.getInstance().findFileByNioPath(Paths.get(basePath));
+                        if (baseDir != null) {
+                            VirtualFile jenvFile = baseDir.createChildData(project, JenvConstants.VERSION_FILE);
+                            JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
+                            VirtualFileManager.getInstance().refreshWithoutFileWatcher(true);
+                            PsiFile psiFile = PsiManager.getInstance(project).findFile(jenvFile);
+                            if (psiFile != null) {
+                                psiFile.navigate(true);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        } else {
+            state.setNeedToChangeFile(false);
+            JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
+        }
+    }
 }

@@ -36,7 +36,7 @@ public class JenvFileAction extends DumbAwareAction {
                 JenvNotifications.showWarnNotification("Open folder failed", "Desktop OPEN action not supported", project, false);
             }
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
 

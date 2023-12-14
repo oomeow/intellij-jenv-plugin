@@ -36,10 +36,8 @@ public class VersionFileChangeListener implements BulkFileListener {
             if (fileEvent instanceof VFileCreateEvent || fileEvent instanceof VFileDeleteEvent) {
                 Object requester = fileEvent.getRequestor();
                 if (requester instanceof Project fileProject) {
-                    // create event
                     currentProject = fileProject;
                 } else if (requester instanceof PsiManager psiManager) {
-                    // delete event
                     currentProject = psiManager.getProject();
                 }
             }
@@ -65,7 +63,7 @@ public class VersionFileChangeListener implements BulkFileListener {
                             // the content of this file is empty, need to change file.
                             state.setNeedToChangeFile(true);
                         } else {
-                            // use jenv command `jenv local` to create file, the content of this file is not empty,
+                            // use jenv command (jenv local) to create file, the content of this file is not empty,
                             // no need to change file.
                             state.setNeedToChangeFile(false);
                             stateService.changeJenvJdkWithNotification(jdkVersion);

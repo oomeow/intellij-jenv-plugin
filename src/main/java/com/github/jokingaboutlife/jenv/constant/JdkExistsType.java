@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons;
 import javax.swing.*;
 
 public enum JdkExistsType {
+    JEnvHomePathInvalid("Invalid home path, this jEnv JDK has removed", AllIcons.General.Error),
     OnlyInJEnv("Only exists in jEnv", null),
     // The following belong to IDEA
     OnlyInIDEA("Only exists in IDEA", null),
