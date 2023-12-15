@@ -5,6 +5,7 @@
 ## [Unreleased]
 - remove duplicate jEnv jdk. Canonical path exists, delete all. Multiple same home path, delete them until only one exists.
 - add `Invalid Jenv` separator in the pop menu of jEnv status bar, click item to remove this JDK.
+- add completions for the `.java-version` file which under the project
 
 ### Fixes
 - jEnv status bar icon no change when the project not set up JDK
