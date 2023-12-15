@@ -68,7 +68,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
-                JenvJdkTableService.getInstance().checkJenvJdksFiles();
+                JenvJdkTableService.getInstance().validateJenvJdksFiles();
                 JBPopup popup = getPopup(projectJdkName, dataContext);
                 Dimension dimension = popup.getContent().getPreferredSize();
                 Point at = new Point(0, -dimension.height);

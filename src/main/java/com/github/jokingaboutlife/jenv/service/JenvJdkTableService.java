@@ -64,6 +64,12 @@ public class JenvJdkTableService {
         return myIdeaJdks.stream().filter(o -> o.getName().equals(jdkName)).findFirst().orElse(null);
     }
 
+    public void addToJenvJdks(Sdk jdk) {
+        JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
+        myIdeaJdks.add(jenvJdkModel);
+        Collections.sort(myIdeaJdks);
+    }
+
     @NotNull
     private JenvJdkModel createJenvJdkModel(Sdk jdk) {
         JenvJdkModel jenvJdkModel = new JenvJdkModel();
@@ -112,12 +118,6 @@ public class JenvJdkTableService {
         return jdkExistsType;
     }
 
-    public void addToJenvJdks(Sdk jdk) {
-        JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
-        myIdeaJdks.add(jenvJdkModel);
-        Collections.sort(myIdeaJdks);
-    }
-
     public void changeJenvJdkName(Sdk jdk, String previousName) {
         for (JenvJdkModel ideaJdk : myIdeaJdks) {
             if (ideaJdk.getName().equals(previousName) && ideaJdk.getIdeaJdkInfo().equals(jdk)) {
@@ -134,7 +134,7 @@ public class JenvJdkTableService {
         myIdeaJdks.removeIf(o -> o.getName().equals(jdk.getName()) && o.getIdeaJdkInfo().equals(jdk));
     }
 
-    public void checkJenvJdksFiles() {
+    public void validateJenvJdksFiles() {
         refreshJenvJdkFiles();
         myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) || JenvUtils.checkIsIdeaAndIsJenv(o))
                 .forEach(o -> {
@@ -146,6 +146,20 @@ public class JenvJdkTableService {
                         o.setExistsType(JdkExistsType.JEnvHomePathInvalid);
                     }
                 });
+    }
+
+    public synchronized void refreshJenvJdks() {
+        refreshJenvJdkFiles();
+        myIdeaJdks.clear();
+        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
+        Arrays.sort(allJdks, (o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
+        for (Sdk jdk : allJdks) {
+            if (jdk.getSdkType() instanceof JavaSdkType) {
+                JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
+                myIdeaJdks.add(jenvJdkModel);
+            }
+        }
+        Collections.sort(myIdeaJdks);
     }
 
     private void refreshJenvJdkFiles() {
@@ -167,20 +181,6 @@ public class JenvJdkTableService {
             myJenvJdkFiles.add(jenvJdkFile);
         }
         Collections.sort(myJenvJdkFiles);
-    }
-
-    public synchronized void refreshJenvJdks() {
-        refreshJenvJdkFiles();
-        myIdeaJdks.clear();
-        Sdk[] allJdks = ProjectJdkTable.getInstance().getAllJdks();
-        Arrays.sort(allJdks, (o1, o2) -> StringUtils.compare(o1.getName(), o2.getName()));
-        for (Sdk jdk : allJdks) {
-            if (jdk.getSdkType() instanceof JavaSdkType) {
-                JenvJdkModel jenvJdkModel = createJenvJdkModel(jdk);
-                myIdeaJdks.add(jenvJdkModel);
-            }
-        }
-        Collections.sort(myIdeaJdks);
     }
 
     public void addAllJenvJdksToIdea(Project project) {
