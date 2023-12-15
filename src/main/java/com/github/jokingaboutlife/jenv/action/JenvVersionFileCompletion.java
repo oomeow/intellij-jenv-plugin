@@ -6,6 +6,7 @@ import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -30,7 +31,12 @@ public class JenvVersionFileCompletion extends CompletionContributor {
                         text = originalPosition.getText().trim();
                     }
                     for (JenvJdkModel jenvJdkModel : list) {
-                        result.withPrefixMatcher(text).addElement(LookupElementBuilder.create(jenvJdkModel.getName()));
+                        String name = jenvJdkModel.getName();
+                        LookupElementBuilder element = LookupElementBuilder.create(name).withInsertHandler((insertionContext, item) ->
+                                WriteCommandAction.runWriteCommandAction(insertionContext.getProject(), () -> {
+                                    insertionContext.getDocument().setText(name);
+                                }));
+                        result.withPrefixMatcher(text).addElement(element);
                     }
                 }
             }
