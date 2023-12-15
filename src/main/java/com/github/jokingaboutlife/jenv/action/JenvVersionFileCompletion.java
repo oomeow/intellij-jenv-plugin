@@ -14,9 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class JenvCompletionContributor extends CompletionContributor {
+public class JenvVersionFileCompletion extends CompletionContributor {
 
-    public JenvCompletionContributor() {
+    public JenvVersionFileCompletion() {
         extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider<>() {
             @Override
             protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
@@ -27,7 +27,7 @@ public class JenvCompletionContributor extends CompletionContributor {
                     PsiElement originalPosition = parameters.getOriginalPosition();
                     String text = "";
                     if (originalPosition != null) {
-                        text = originalPosition.getText();
+                        text = originalPosition.getText().trim();
                     }
                     for (JenvJdkModel jenvJdkModel : list) {
                         result.withPrefixMatcher(text).addElement(LookupElementBuilder.create(jenvJdkModel.getName()));

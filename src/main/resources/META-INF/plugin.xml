@@ -16,7 +16,7 @@
         <statusBarWidgetFactory id="jEnv.Widget" order="before positionWidget, before Position, first"
                                 implementation="com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory"/>
         <notificationGroup id="jEnv" displayType="BALLOON" isLogByDefault="true"/>
-        <completion.contributor implementationClass="com.github.jokingaboutlife.jenv.action.JenvCompletionContributor"
+        <completion.contributor implementationClass="com.github.jokingaboutlife.jenv.action.JenvVersionFileCompletion"
                                 language="TEXT"/>
     </extensions>
 
