@@ -15,7 +15,6 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
-import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
@@ -69,7 +68,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
                 JenvJdkTableService.getInstance().validateJenvJdksFiles();
-                JBPopup popup = getPopup(projectJdkName, dataContext);
+                ListPopup popup = getPopup(projectJdkName, dataContext);
                 Dimension dimension = popup.getContent().getPreferredSize();
                 Point at = new Point(0, -dimension.height);
                 popup.show(new RelativePoint(component, at));
@@ -154,7 +153,6 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
             more.add(jenvFileAction);
         }
         actions.add(more);
-        actions.addSeparator();
         actions.addSeparator("jEnv");
         List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
         createActionWithMore(actions, jdksInIdeaAndInJenv, currentJdkName, 5);

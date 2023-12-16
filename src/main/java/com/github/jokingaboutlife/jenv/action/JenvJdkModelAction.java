@@ -52,12 +52,11 @@ public class JenvJdkModelAction extends DumbAwareAction {
                 return;
             }
             if (projectSdk != null && jenvJdkModel.getIdeaJdkInfo().getName().equals(projectSdk.getName())) {
-                // project JDK is current JDK, no need to change
                 return;
             }
             String jdkName = jenvJdkModel.getName();
             JenvState state = JenvStateService.getInstance(project).getState();
-            if (state.isProjectJenvExists()) {
+            if (state.isLocalJenvFileExists()) {
                 state.setNeedToChangeFile(true);
                 JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
             } else if (!jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyInIDEA)) {

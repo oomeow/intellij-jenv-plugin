@@ -57,7 +57,7 @@ public class JenvStateService {
             String title = JenvBundle.message("notification.jdk.not.jenv.title");
             String content = JenvBundle.message("notification.jdk.not.jenv.content", jdkName);
             if (existsType.equals(JdkExistsType.OnlyMajorVersionMatch)) {
-                if (state.isProjectJenvExists()) {
+                if (state.isLocalJenvFileExists()) {
                     state.setNeedToChangeFile(true);
                 }
                 title = JenvBundle.message("notification.jdk.major.match.title");
@@ -65,7 +65,7 @@ public class JenvStateService {
             }
             JenvNotifications.showWarnNotification(title, content, project, true);
         } else if (existsType.equals(JdkExistsType.OnlyNameNotMatch)) {
-            if (state.isProjectJenvExists()) {
+            if (state.isLocalJenvFileExists()) {
                 state.setNeedToChangeFile(true);
             }
             String title = JenvBundle.message("notification.jdk.name.not.match.title");
@@ -81,7 +81,7 @@ public class JenvStateService {
     }
 
     public void changeJenvVersionFile(String handwrittenContent) {
-        if (!state.isProjectJenvExists() || !state.isNeedToChangeFile()) {
+        if (!state.isLocalJenvFileExists() || !state.isNeedToChangeFile()) {
             return;
         }
         Sdk changedJdk = ProjectRootManager.getInstance(project).getProjectSdk();
@@ -101,7 +101,7 @@ public class JenvStateService {
                 content = null;
             }
         }
-        String projectJenvFilePath = state.getProjectJenvFilePath();
+        String projectJenvFilePath = state.getLocalJenvFilePath();
         VirtualFile vProjectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJenvFilePath));
         if (content != null && vProjectJenvFile != null && vProjectJenvFile.exists()) {
             ApplicationManager.getApplication().invokeAndWait(() -> ApplicationManager.getApplication().runWriteAction(() -> {
