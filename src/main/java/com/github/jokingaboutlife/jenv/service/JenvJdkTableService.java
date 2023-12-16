@@ -17,15 +17,14 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -305,7 +304,7 @@ public class JenvJdkTableService {
             }
             if (!exists) {
                 ApplicationManager.getApplication().invokeAndWait(() -> {
-                    VirtualFile homeDir = VirtualFileManager.getInstance().findFileByNioPath(Path.of(jenvJdkFile.getHomePath()));
+                    VirtualFile homeDir = LocalFileSystem.getInstance().refreshAndFindFileByPath(jenvJdkFile.getHomePath());
                     if (homeDir != null) {
                         indicator.setText("Add " + jenvJdkFile.getName() + " to IDEA");
                         Sdk sdk = SdkConfigurationUtil.setupSdk(ProjectJdkTable.getInstance().getAllJdks(), homeDir, JavaSdk.getInstance(), true, null, jenvJdkFile.getName());
