@@ -141,7 +141,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 JenvJdkTableService.getInstance().refreshJenvJdks();
             }
         });
-        actions.add(new AnAction("Add All", "Add all jEnv jdks to IDEA", AllIcons.Actions.AddFile) {
+        actions.add(new AnAction("Add All", "Add all jEnv jdks to IDEA", AllIcons.Actions.AddList) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
