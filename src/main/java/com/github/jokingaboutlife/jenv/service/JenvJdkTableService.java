@@ -314,7 +314,7 @@ public class JenvJdkTableService {
                     }
                 });
                 try {
-                    ThreadUtils.sleep(Duration.ofMillis(100));
+                    ThreadUtils.sleep(Duration.ofMillis(50));
                 } catch (InterruptedException ignore) {
                 }
             }

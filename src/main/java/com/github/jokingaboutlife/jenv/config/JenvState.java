@@ -4,24 +4,24 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class JenvState {
-    private boolean projectJenvExists;
-    private String projectJenvFilePath;
+    private boolean localJenvFileExists;
+    private String localJenvFilePath;
     private boolean needToChangeFile;
 
-    public boolean isProjectJenvExists() {
-        return projectJenvExists;
+    public boolean isLocalJenvFileExists() {
+        return localJenvFileExists;
     }
 
-    public void setProjectJenvExists(boolean projectJenvExists) {
-        this.projectJenvExists = projectJenvExists;
+    public void setLocalJenvFileExists(boolean localJenvFileExists) {
+        this.localJenvFileExists = localJenvFileExists;
     }
 
-    public String getProjectJenvFilePath() {
-        return projectJenvFilePath;
+    public String getLocalJenvFilePath() {
+        return localJenvFilePath;
     }
 
-    public void setProjectJenvFilePath(String projectJenvFilePath) {
-        this.projectJenvFilePath = projectJenvFilePath;
+    public void setLocalJenvFilePath(String localJenvFilePath) {
+        this.localJenvFilePath = localJenvFilePath;
     }
 
     public boolean isNeedToChangeFile() {
@@ -40,8 +40,8 @@ public class JenvState {
             return false;
         JenvState that = (JenvState) o;
         return new EqualsBuilder()
-                .append(projectJenvExists, that.projectJenvExists)
-                .append(projectJenvFilePath, that.projectJenvFilePath)
+                .append(localJenvFileExists, that.localJenvFileExists)
+                .append(localJenvFilePath, that.localJenvFilePath)
                 .append(needToChangeFile, that.needToChangeFile)
                 .isEquals();
     }
@@ -49,8 +49,8 @@ public class JenvState {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(projectJenvExists)
-                .append(projectJenvFilePath)
+                .append(localJenvFileExists)
+                .append(localJenvFilePath)
                 .append(needToChangeFile)
                 .toHashCode();
     }

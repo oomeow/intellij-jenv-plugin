@@ -71,11 +71,11 @@ public class VersionFileChangeListener implements BulkFileListener {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    state.setProjectJenvExists(true);
-                    state.setProjectJenvFilePath(jenvFile.getPath());
+                    state.setLocalJenvFileExists(true);
+                    state.setLocalJenvFilePath(jenvFile.getPath());
                 } else if (fileEvent instanceof VFileDeleteEvent) {
-                    state.setProjectJenvExists(false);
-                    state.setProjectJenvFilePath(null);
+                    state.setLocalJenvFileExists(false);
+                    state.setLocalJenvFilePath(null);
                 } else if (fileEvent instanceof VFileContentChangeEvent changeEvent) {
                     // jenv version file content has changed
                     if (state.isNeedToChangeFile()) {

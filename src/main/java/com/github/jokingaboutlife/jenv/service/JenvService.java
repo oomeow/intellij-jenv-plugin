@@ -4,7 +4,6 @@ import com.github.jokingaboutlife.jenv.config.JenvState;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.util.JenvNotifications;
 import com.github.jokingaboutlife.jenv.util.JenvVersionParser;
-import com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -15,7 +14,6 @@ import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -24,17 +22,18 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 public class JenvService {
+    private final String jEnvInstalledKey = "jEnv.installed";
 
     public static JenvService getInstance() {
         return ApplicationManager.getApplication().getService(JenvService.class);
     }
 
     public void setJenvInstalled(boolean jenvInstalled) {
-        PropertiesComponent.getInstance().setValue("jEnv.installed", jenvInstalled);
+        PropertiesComponent.getInstance().setValue(jEnvInstalledKey, jenvInstalled);
     }
 
     public boolean isJenvInstalled() {
-        return PropertiesComponent.getInstance().getBoolean("jEnv.installed", false);
+        return PropertiesComponent.getInstance().getBoolean(jEnvInstalledKey, false);
     }
 
     public void initProject(Project project) {
@@ -42,8 +41,8 @@ public class JenvService {
         String projectJdkVersionFilePath = project.getBasePath() + File.separator + JenvConstants.VERSION_FILE;
         VirtualFile projectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJdkVersionFilePath));
         if (projectJenvFile != null && projectJenvFile.exists()) {
-            state.setProjectJenvExists(true);
-            state.setProjectJenvFilePath(projectJenvFile.getPath());
+            state.setLocalJenvFileExists(true);
+            state.setLocalJenvFilePath(projectJenvFile.getPath());
             try {
                 String jdkName = new String(projectJenvFile.contentsToByteArray(), StandardCharsets.UTF_8).trim();
                 Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkName);
@@ -71,9 +70,6 @@ public class JenvService {
                 JenvNotifications.showErrorNotification("Init project Failed", e.getMessage(), project, false);
             }
         }
-        // update status bar to show jenv plugin
-        StatusBarWidgetsManager service = project.getService(StatusBarWidgetsManager.class);
-        service.updateWidget(JenvBarWidgetFactory.class);
     }
 
 }
