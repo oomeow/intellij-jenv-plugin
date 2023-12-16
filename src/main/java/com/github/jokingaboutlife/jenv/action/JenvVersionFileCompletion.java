@@ -25,6 +25,7 @@ public class JenvVersionFileCompletion extends CompletionContributor {
             protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
                 PsiFile psiFile = parameters.getOriginalFile();
                 if (psiFile.getVirtualFile().getPath().endsWith(JenvConstants.VERSION_FILE)) {
+                    JenvJdkTableService.getInstance().validateJenvJdksFiles();
                     List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
                     List<JenvJdkModel> list = jdksInIdeaAndInJenv.stream().filter(o -> o.getExistsType().equals(JdkExistsType.Both)).toList();
                     PsiElement originalPosition = parameters.getOriginalPosition();
