@@ -100,13 +100,15 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
         Icon icon = AllIcons.General.Error;
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
+            String text = projectSdk.getName();
             JenvJdkModel jenvJdkModel = JenvJdkTableService.getInstance().findJenvJdkByName(projectSdk.getName());
-            if (jenvJdkModel.getExistsType().getIcon() != null) {
+            if (jenvJdkModel != null && jenvJdkModel.getExistsType().getIcon() != null) {
+                text = jenvJdkModel.getName();
                 icon = jenvJdkModel.getExistsType().getIcon();
             } else {
                 icon = JenvIcons.JENV_JDK;
             }
-            setText(jenvJdkModel.getName());
+            setText(text);
         } else {
             setText("No JDK");
         }

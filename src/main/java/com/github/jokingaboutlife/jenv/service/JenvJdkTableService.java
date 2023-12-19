@@ -18,6 +18,8 @@ import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
+import com.intellij.openapi.projectRoots.impl.UnknownSdkEditorNotification;
+import com.intellij.openapi.projectRoots.impl.UnknownSdkFix;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -166,23 +168,26 @@ public class JenvJdkTableService {
                         if (o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) && FileUtil.exists(o.getHomePath())) {
                             o.setExistsType(getIdeaJdkExistsType(o.getIdeaJdkInfo(), o.getMajorVersion()));
                             if (projectJdkName != null && projectJdkName.equals(o.getName())) {
-                                // is project JDK
+                                // current project JDK
                                 ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
                                     Sdk jdk = ProjectRootManager.getInstance(project).getProjectSdk();
                                     if (jdk != null) {
                                         JavaSdk.getInstance().setupSdkPaths(jdk);
                                     }
-                                    // reset project JDK (remove idea original invalid JDK banner)
-                                    // I can't find another way to remove idea original invalid JDK banner.
-                                    // temporarily use the following code to achieve. (set project null and reset the original JDK again)
-                                    SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
-                                    AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
-                                        ApplicationManager.getApplication().invokeLater(() -> {
-                                            ApplicationManager.getApplication().runWriteAction(() -> {
-                                                SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
+                                    List<UnknownSdkFix> notifications = UnknownSdkEditorNotification.getInstance(project).getNotifications();
+                                    if (!notifications.isEmpty()) {
+                                        // reset project JDK (remove idea original invalid JDK banner)
+                                        // I can't find another way to remove idea original invalid JDK banner.
+                                        // temporarily use the following code to achieve. (set project null and reset the original JDK again)
+                                        SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
+                                        AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
+                                            ApplicationManager.getApplication().invokeLater(() -> {
+                                                ApplicationManager.getApplication().runWriteAction(() -> {
+                                                    SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
+                                                });
                                             });
-                                        });
-                                    }, 3, TimeUnit.SECONDS);
+                                        }, 3, TimeUnit.SECONDS);
+                                    }
                                 }));
                             }
                         } else if (!FileUtil.exists(o.getHomePath())) {
