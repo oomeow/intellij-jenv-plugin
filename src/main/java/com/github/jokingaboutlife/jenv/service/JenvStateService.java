@@ -7,8 +7,10 @@ import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.util.JenvNotifications;
 import com.github.jokingaboutlife.jenv.util.JenvUtils;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -16,8 +18,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 public class JenvStateService {
@@ -72,15 +72,15 @@ public class JenvStateService {
             String content = JenvBundle.message("notification.jdk.name.not.match.content", jdkName);
             JenvNotifications.showWarnNotification(title, content, project, true);
         }
-        // do jdk change
-        Sdk jdk = ProjectJdkTable.getInstance().findJdk(jdkName);
+        // do JDK change
+        Sdk jdk = jenvJdkModel.getIdeaJdkInfo();
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (jdk != null && !jdk.equals(projectSdk)) {
             SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
         }
     }
 
-    public void changeJenvVersionFile(String handwrittenContent) {
+    public void changeJenvVersionFile(String specifyVersion) {
         if (!state.isLocalJenvFileExists() || !state.isNeedToChangeFile()) {
             return;
         }
@@ -89,8 +89,8 @@ public class JenvStateService {
             return;
         }
         String content;
-        if (StringUtils.isNoneBlank(handwrittenContent)) {
-            content = handwrittenContent;
+        if (StringUtils.isNoneBlank(specifyVersion)) {
+            content = specifyVersion;
         } else {
             String changedJdkName = changedJdk.getName();
             JenvJdkTableService instance = JenvJdkTableService.getInstance();
@@ -104,11 +104,12 @@ public class JenvStateService {
         String projectJenvFilePath = state.getLocalJenvFilePath();
         VirtualFile vProjectJenvFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(projectJenvFilePath));
         if (content != null && vProjectJenvFile != null && vProjectJenvFile.exists()) {
-            ApplicationManager.getApplication().invokeAndWait(() -> ApplicationManager.getApplication().runWriteAction(() -> {
-                try {
-                    vProjectJenvFile.setBinaryContent(content.getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    JenvNotifications.showErrorNotification("Change jEnv version File Failed", e.getMessage(), project, false);
+            ApplicationManager.getApplication().invokeAndWait(() -> WriteCommandAction.runWriteCommandAction(project, () -> {
+                Document document = FileDocumentManager.getInstance().getDocument(vProjectJenvFile);
+                if (document != null) {
+                    document.setText(content);
+                    state.setJenvFileModificationStamp(document.getModificationStamp());
+                    FileDocumentManager.getInstance().saveDocument(document);
                 }
             }));
         }

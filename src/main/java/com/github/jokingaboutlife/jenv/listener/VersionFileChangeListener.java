@@ -3,6 +3,8 @@ package com.github.jokingaboutlife.jenv.listener;
 import com.github.jokingaboutlife.jenv.config.JenvState;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.service.JenvStateService;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -15,7 +17,6 @@ import com.intellij.psi.PsiManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.List;
 
 public class VersionFileChangeListener implements BulkFileListener {
@@ -56,20 +57,18 @@ public class VersionFileChangeListener implements BulkFileListener {
                 JenvStateService stateService = JenvStateService.getInstance(currentProject);
                 JenvState state = stateService.getState();
                 if (fileEvent instanceof VFileCreateEvent) {
-                    try {
-                        String jdkVersion = new String(jenvFile.contentsToByteArray()).trim();
-                        if (StringUtils.isEmpty(jdkVersion)) {
-                            // click jEnv status bar action and then show create jEnv version file dialog,
-                            // the content of this file is empty, need to change file.
-                            state.setNeedToChangeFile(true);
-                        } else {
-                            // use jenv command (jenv local) to create file, the content of this file is not empty,
-                            // no need to change file.
-                            state.setNeedToChangeFile(false);
-                            stateService.changeJenvJdkWithNotification(jdkVersion);
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    Document document = FileDocumentManager.getInstance().getDocument(jenvFile);
+                    String jdkVersion = "";
+                    if (document != null) {
+                        jdkVersion = document.getText().trim();
+                    }
+                    if (StringUtils.isEmpty(jdkVersion)) {
+                        // create by this plugin
+                        state.setNeedToChangeFile(true);
+                    } else {
+                        // create by type `jenv local` command
+                        state.setNeedToChangeFile(false);
+                        stateService.changeJenvJdkWithNotification(jdkVersion);
                     }
                     state.setLocalJenvFileExists(true);
                     state.setLocalJenvFilePath(jenvFile.getPath());
@@ -78,15 +77,16 @@ public class VersionFileChangeListener implements BulkFileListener {
                     state.setLocalJenvFilePath(null);
                 } else if (fileEvent instanceof VFileContentChangeEvent changeEvent) {
                     // jenv version file content has changed
-                    if (state.isNeedToChangeFile()) {
-                        // if isNeedToChangeFile method return true means other tasks are modifying this file, so ignore this change event
+                    long jenvFileModificationStamp = state.getJenvFileModificationStamp();
+                    long currentModificationStamp = changeEvent.getFile().getModificationStamp();
+                    if (currentModificationStamp == jenvFileModificationStamp) {
+                        // jenv version file has modified by other methods, and it means project JDK has changed, skip
                         continue;
                     }
-                    try {
-                        String jdkVersion = new String(changeEvent.getFile().contentsToByteArray()).trim();
+                    Document document = FileDocumentManager.getInstance().getDocument(changeEvent.getFile());
+                    if (document != null) {
+                        String jdkVersion = document.getText().trim();
                         stateService.changeJenvJdkWithNotification(jdkVersion);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 }
             }

@@ -1,7 +1,8 @@
-package com.github.jokingaboutlife.jenv.action;
+package com.github.jokingaboutlife.jenv.completion;
 
 import com.github.jokingaboutlife.jenv.constant.JdkExistsType;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
+import com.github.jokingaboutlife.jenv.icons.JenvIcons;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
 import com.intellij.codeInsight.completion.*;
@@ -9,6 +10,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -25,7 +27,8 @@ public class JenvVersionFileCompletion extends CompletionContributor {
             protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
                 PsiFile psiFile = parameters.getOriginalFile();
                 if (psiFile.getVirtualFile().getPath().endsWith(JenvConstants.VERSION_FILE)) {
-                    JenvJdkTableService.getInstance().validateJenvJdksFiles();
+                    Project project = psiFile.getProject();
+                    JenvJdkTableService.getInstance().validateJenvJdksFiles(project);
                     List<JenvJdkModel> jdksInIdeaAndInJenv = JenvJdkTableService.getInstance().getJdksInIdeaAndInJenv();
                     List<JenvJdkModel> list = jdksInIdeaAndInJenv.stream().filter(o -> o.getExistsType().equals(JdkExistsType.Both)).toList();
                     PsiElement originalPosition = parameters.getOriginalPosition();
@@ -36,12 +39,15 @@ public class JenvVersionFileCompletion extends CompletionContributor {
                     CompletionResultSet completionResultSet = result.withPrefixMatcher(text);
                     for (JenvJdkModel jenvJdkModel : list) {
                         String name = jenvJdkModel.getName();
-                        LookupElementBuilder element = LookupElementBuilder.create(name).withInsertHandler((insertionContext, item) ->
-                                WriteCommandAction.runWriteCommandAction(insertionContext.getProject(), () -> {
-                                    Document document = insertionContext.getDocument();
-                                    document.setText(name);
-                                    FileDocumentManager.getInstance().saveDocument(document);
-                                }));
+                        LookupElementBuilder element = LookupElementBuilder.create(name)
+                                .withIcon(JenvIcons.JENV_JDK)
+                                .withInsertHandler((insertionContext, item) ->
+                                        WriteCommandAction.runWriteCommandAction(insertionContext.getProject(), () -> {
+                                            Document document = insertionContext.getDocument();
+                                            document.setText(name);
+                                            FileDocumentManager.getInstance().saveDocument(document);
+                                        })
+                                );
                         completionResultSet.addElement(element);
                     }
                 }

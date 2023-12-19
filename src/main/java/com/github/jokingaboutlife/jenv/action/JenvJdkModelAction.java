@@ -13,7 +13,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkModificator;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JenvJdkModelAction extends DumbAwareAction {
 
@@ -55,15 +58,47 @@ public class JenvJdkModelAction extends DumbAwareAction {
                 return;
             }
             String jdkName = jenvJdkModel.getName();
+            boolean renamed = false;
+            String realJenvName = null;
+            if (jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
+                realJenvName = jenvJdkModel.getRealJenvName();
+                renamed = showRightMessage();
+            }
             JenvState state = JenvStateService.getInstance(project).getState();
             if (state.isLocalJenvFileExists()) {
                 state.setNeedToChangeFile(true);
+                if (renamed) {
+                    jdkName = realJenvName;
+                }
                 JenvStateService.getInstance(project).changeJenvJdkWithNotification(jdkName);
             } else if (!jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyInIDEA)) {
-                // change jdk belong to jenv and the jenv version file not exists
+                // change JDK belong to jenv and the jenv version file not exists
                 createJenvVersionFile(project, jdkName, state);
             }
         }
+    }
+
+    private boolean showRightMessage() {
+        AtomicBoolean rename = new AtomicBoolean(false);
+        String title = JenvBundle.message("messages.jenv.jdk.name.not.match.title");
+        String content = JenvBundle.message("messages.jenv.jdk.name.not.match.content", jenvJdkModel.getRealJenvName());
+        int result = Messages.showYesNoDialog(content, title, AllIcons.General.Information);
+        if (result == Messages.YES) {
+            ApplicationManager.getApplication().runWriteAction(() -> {
+                try {
+                    rename.set(true);
+                    Sdk jdk = jenvJdkModel.getIdeaJdkInfo();
+                    Sdk clone = (Sdk) jdk.clone();
+                    SdkModificator sdkModificator = clone.getSdkModificator();
+                    sdkModificator.setName(jenvJdkModel.getRealJenvName());
+                    sdkModificator.commitChanges();
+                    ProjectJdkTable.getInstance().updateJdk(jdk, clone);
+                } catch (CloneNotSupportedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        return rename.get();
     }
 
     private void showInvalidJdkMessage(Project project, Sdk projectSdk) {
@@ -79,7 +114,6 @@ public class JenvJdkModelAction extends DumbAwareAction {
             });
         }
     }
-
 
     private static void createJenvVersionFile(Project project, String jdkName, JenvState state) {
         String title = JenvBundle.message("messages.create.jenv.version.file.title");

@@ -6,6 +6,8 @@ import com.intellij.openapi.projectRoots.Sdk;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public class JenvJdkModel implements Comparable<JenvJdkModel> {
     private String name;
     private String version;
@@ -13,8 +15,10 @@ public class JenvJdkModel implements Comparable<JenvJdkModel> {
     private String majorVersion;
     private String homePath;
     private String canonicalPath;
-    // exists in IDEA jdk need
+    // exists in IDEA JDK need
     private JdkExistsType existsType;
+    // exists type is OnlyNameNotMatch, this value will not empty
+    private String realJenvName;
     private Sdk ideaJdkInfo;
 
     public String getName() {
@@ -74,7 +78,16 @@ public class JenvJdkModel implements Comparable<JenvJdkModel> {
     }
 
     public void setExistsType(JdkExistsType existsType) {
+        if (existsType.equals(JdkExistsType.OnlyNameNotMatch)) {
+            this.realJenvName = new File(homePath).getName();
+        } else {
+            this.realJenvName = null;
+        }
         this.existsType = existsType;
+    }
+
+    public String getRealJenvName() {
+        return realJenvName;
     }
 
     public Sdk getIdeaJdkInfo() {

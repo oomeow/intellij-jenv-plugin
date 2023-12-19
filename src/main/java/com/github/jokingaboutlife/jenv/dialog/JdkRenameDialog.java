@@ -211,11 +211,17 @@ public class JdkRenameDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         ApplicationManager.getApplication().invokeAndWait(() -> ApplicationManager.getApplication().runWriteAction(() -> {
-            for (JenvRenameModel jenvRenameModel : renameModelList) {
-                Sdk ideaSdk = jenvRenameModel.getIdeaSdk();
-                SdkModificator sdkModificator = ideaSdk.getSdkModificator();
-                sdkModificator.setName(jenvRenameModel.getChangeName());
-                ProjectJdkTable.getInstance().updateJdk(ideaSdk, (Sdk) sdkModificator);
+            try {
+                for (JenvRenameModel jenvRenameModel : renameModelList) {
+                    Sdk ideaSdk = jenvRenameModel.getIdeaSdk();
+                    Sdk clone = (Sdk) ideaSdk.clone();
+                    SdkModificator sdkModificator = clone.getSdkModificator();
+                    sdkModificator.setName(jenvRenameModel.getChangeName());
+                    sdkModificator.commitChanges();
+                    ProjectJdkTable.getInstance().updateJdk(ideaSdk, clone);
+                }
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
             }
             super.doOKAction();
         }));

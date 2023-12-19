@@ -1,7 +1,9 @@
 package com.github.jokingaboutlife.jenv.service;
 
 import com.github.jokingaboutlife.jenv.constant.JdkExistsType;
+import com.github.jokingaboutlife.jenv.constant.JenvConstants;
 import com.github.jokingaboutlife.jenv.dialog.JdkRenameDialog;
+import com.github.jokingaboutlife.jenv.listener.StatusBarUpdateMessage;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.model.JenvRenameModel;
 import com.github.jokingaboutlife.jenv.util.JenvUtils;
@@ -16,17 +18,20 @@ import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.EditorNotifications;
+import com.intellij.util.TimeoutUtil;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class JenvJdkTableService {
@@ -73,11 +78,9 @@ public class JenvJdkTableService {
     private JenvJdkModel createJenvJdkModel(Sdk jdk) {
         JenvJdkModel jenvJdkModel = new JenvJdkModel();
         jenvJdkModel.setName(jdk.getName());
-        String versionString = jdk.getVersionString();
-        jenvJdkModel.setVersion(JenvVersionParser.tryParse(versionString));
-        JdkExistsType jdkExistsType = getIdeaJdkExistsType(jdk, jenvJdkModel.getMajorVersion());
-        jenvJdkModel.setExistsType(jdkExistsType);
         jenvJdkModel.setHomePath(jdk.getHomePath());
+        jenvJdkModel.setVersion(JenvVersionParser.tryParse(jdk.getVersionString()));
+        jenvJdkModel.setExistsType(getIdeaJdkExistsType(jdk, jenvJdkModel.getMajorVersion()));
         jenvJdkModel.setIdeaJdkInfo(jdk);
         return jenvJdkModel;
     }
@@ -88,6 +91,11 @@ public class JenvJdkTableService {
             boolean nameMatch = false;
             boolean majorVersionMatch = false;
             boolean homePathMatch = false;
+            String homePath = jdk.getHomePath();
+            if (homePath != null && homePath.contains(JenvConstants.JENV_VERSIONS_DIR) && !FileUtil.exists(homePath)) {
+                jdkExistsType = JdkExistsType.JEnvHomePathInvalid;
+                break;
+            }
             if (jenvJdkFile.getName().equals(jdk.getName())) {
                 nameMatch = true;
             }
@@ -133,18 +141,57 @@ public class JenvJdkTableService {
         myIdeaJdks.removeIf(o -> o.getName().equals(jdk.getName()) && o.getIdeaJdkInfo().equals(jdk));
     }
 
-    public void validateJenvJdksFiles() {
-        refreshJenvJdkFiles();
-        myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) || JenvUtils.checkIsIdeaAndIsJenv(o))
-                .forEach(o -> {
-                    if (o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid)) {
-                        if (FileUtil.exists(o.getHomePath())) {
+    public void validateJenvJdksFiles(Project project) {
+        List<String> jenvJdkVersionFiles = JenvUtils.getJenvJdkVersionFiles().stream().map(File::getPath).toList();
+        boolean jenvFilesChanged = false;
+        if (jenvJdkVersionFiles.size() != myJenvJdkFiles.size()) {
+            jenvFilesChanged = true;
+        } else {
+            List<String> collect = myJenvJdkFiles.stream().map(JenvJdkModel::getHomePath).toList();
+            if (!new HashSet<>(jenvJdkVersionFiles).containsAll(collect)) {
+                jenvFilesChanged = true;
+            }
+        }
+        if (jenvFilesChanged) {
+            refreshJenvJdkFiles();
+            String projectJdkName;
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (projectSdk != null) {
+                projectJdkName = projectSdk.getName();
+            } else {
+                projectJdkName = null;
+            }
+            myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) || JenvUtils.checkIsIdeaAndIsJenv(o))
+                    .forEach(o -> {
+                        if (o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) && FileUtil.exists(o.getHomePath())) {
                             o.setExistsType(getIdeaJdkExistsType(o.getIdeaJdkInfo(), o.getMajorVersion()));
+                            if (projectJdkName != null && projectJdkName.equals(o.getName())) {
+                                // is project JDK
+                                ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
+                                    Sdk jdk = ProjectRootManager.getInstance(project).getProjectSdk();
+                                    if (jdk != null) {
+                                        JavaSdk.getInstance().setupSdkPaths(jdk);
+                                    }
+                                    // reset project JDK (remove idea original invalid JDK banner)
+                                    // I can't find another way to remove idea original invalid JDK banner.
+                                    // temporarily use the following code to achieve. (set project null and reset the original JDK again)
+                                    SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
+                                    AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
+                                        ApplicationManager.getApplication().invokeLater(() -> {
+                                            ApplicationManager.getApplication().runWriteAction(() -> {
+                                                SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
+                                            });
+                                        });
+                                    }, 3, TimeUnit.SECONDS);
+                                }));
+                            }
+                        } else if (!FileUtil.exists(o.getHomePath())) {
+                            o.setExistsType(JdkExistsType.JEnvHomePathInvalid);
                         }
-                    } else if (!FileUtil.exists(o.getHomePath())) {
-                        o.setExistsType(JdkExistsType.JEnvHomePathInvalid);
-                    }
-                });
+                    });
+            EditorNotifications.getInstance(project).updateAllNotifications();
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(StatusBarUpdateMessage.TOPIC).updateStatusBar();
+        }
     }
 
     public synchronized void refreshJenvJdks() {
@@ -167,13 +214,11 @@ public class JenvJdkTableService {
         for (File jenvJdkVersionFile : jenvJdkVersionFiles) {
             JenvJdkModel jenvJdkFile = new JenvJdkModel();
             try {
-                jenvJdkFile.setExistsType(JdkExistsType.OnlyInJEnv);
                 jenvJdkFile.setName(jenvJdkVersionFile.getName());
-                String fullVersion = jenvJdkVersionFile.getName();
-                String digitVersion = JenvVersionParser.tryParse(fullVersion);
-                jenvJdkFile.setVersion(digitVersion);
                 jenvJdkFile.setHomePath(jenvJdkVersionFile.getPath());
                 jenvJdkFile.setCanonicalPath(jenvJdkVersionFile.getCanonicalPath());
+                jenvJdkFile.setVersion(JenvVersionParser.tryParse(jenvJdkVersionFile.getName()));
+                jenvJdkFile.setExistsType(JdkExistsType.OnlyInJEnv);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -206,7 +251,7 @@ public class JenvJdkTableService {
     }
 
     /**
-     * delete jEnv jdk
+     * delete jEnv JDK
      * 1. home path has removed, delete all.
      * 2. canonical path exists, delete all.
      * 3. multiple same home path, delete them until only one exists
@@ -313,10 +358,7 @@ public class JenvJdkTableService {
                         }
                     }
                 });
-                try {
-                    ThreadUtils.sleep(Duration.ofMillis(50));
-                } catch (InterruptedException ignore) {
-                }
+                TimeoutUtil.sleep(50);
             }
         }
     }

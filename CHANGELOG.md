@@ -4,14 +4,16 @@
 
 ## [Unreleased]
 - change the position of the jEnv status bar (before `Go to Line` status bar)
-- remove duplicate jEnv jdk. Canonical path exists, delete all. Multiple same home path, delete them until only one exists
+- remove duplicate jEnv JDK. Canonical path exists, delete all. Multiple same home path, delete them until only one exists
 - add `Invalid Jenv` separator in the pop menu of jEnv status bar, click item to remove this JDK
 - add completions for the `.java-version` file which under the project
 - change JDK rename dialog validator
+- add invalid jEnv JDK banner when the project JDK belongs to jEnv and invalid home path
+- click the jEnv JDK which only name not match by jEnv status bar, show the right jEnv name and ask for rename
 
 ### Fixes
 - jEnv status bar icon no change when the project not set up JDK
-- in add all jEnv JDK step, find jdk home file function some time (jenv remove and re-add) return null
+- in add all jEnv JDK step, find JDK home file function some time (jenv remove and re-add) return null
 
 ## [0.0.4] - 2023-12-02
 
@@ -23,18 +25,18 @@
 ### Other
 
 - rename dialog skip validation of the jenv JDK
-- remove all checkBox in rename dialog, as the dialog is only displayed when you click on the "Add All" action, which means that all the jenv jdks must be added.
+- remove all checkBox in rename dialog, as the dialog is only displayed when you click on the "Add All" action, which means that all the jenv JDKs must be added.
 - add tool tip text in the rename dialog
 
 ## [0.0.3] - 2023-11-29
 
-- Add jdk rename dialog when Add jEnv JDK and IDEA has same name JDK.
+- Add JDK rename dialog when Add jEnv JDK and IDEA has same name JDK.
 - Add create jEnv version file dialog when click action in status bar and this project isn't existing jEnv version file.
 
 ## [0.0.2]
 
-- Listening the change of project jEnv version file (.java-version) and change the project jdk.
-- Use StatusBar to change project sdk, add some options, like refresh 、 add all jEnv Jdk option
+- Listening the change of project jEnv version file (.java-version) and change the project JDK.
+- Use StatusBar to change project sdk, add some options, like refresh 、 add all jEnv JDK option
 
 ## [0.0.1]
 

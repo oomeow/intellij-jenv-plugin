@@ -1,12 +1,10 @@
 package com.github.jokingaboutlife.jenv.config;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 public class JenvState {
     private boolean localJenvFileExists;
     private String localJenvFilePath;
     private boolean needToChangeFile;
+    private long jenvFileModificationStamp;
 
     public boolean isLocalJenvFileExists() {
         return localJenvFileExists;
@@ -32,26 +30,11 @@ public class JenvState {
         this.needToChangeFile = needToChangeFile;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        JenvState that = (JenvState) o;
-        return new EqualsBuilder()
-                .append(localJenvFileExists, that.localJenvFileExists)
-                .append(localJenvFilePath, that.localJenvFilePath)
-                .append(needToChangeFile, that.needToChangeFile)
-                .isEquals();
+    public long getJenvFileModificationStamp() {
+        return jenvFileModificationStamp;
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(localJenvFileExists)
-                .append(localJenvFilePath)
-                .append(needToChangeFile)
-                .toHashCode();
+    public void setJenvFileModificationStamp(long jenvFileModificationStamp) {
+        this.jenvFileModificationStamp = jenvFileModificationStamp;
     }
 }

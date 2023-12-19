@@ -16,8 +16,9 @@
         <statusBarWidgetFactory id="jEnv.Widget" order="before positionWidget, before Position"
                                 implementation="com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory"/>
         <notificationGroup id="jEnv" displayType="BALLOON" isLogByDefault="true"/>
-        <completion.contributor implementationClass="com.github.jokingaboutlife.jenv.action.JenvVersionFileCompletion"
+        <completion.contributor implementationClass="com.github.jokingaboutlife.jenv.completion.JenvVersionFileCompletion"
                                 language="TEXT"/>
+        <editorNotificationProvider implementation="com.github.jokingaboutlife.jenv.widget.JenvBanner"/>
     </extensions>
 
     <applicationListeners>
@@ -26,5 +27,10 @@
         <listener class="com.github.jokingaboutlife.jenv.listener.JdkChangeListener"
                   topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </applicationListeners>
+
+    <projectListeners>
+        <listener class="com.github.jokingaboutlife.jenv.listener.JenvDocumentChangeListener"
+                  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+    </projectListeners>
 
 </idea-plugin>

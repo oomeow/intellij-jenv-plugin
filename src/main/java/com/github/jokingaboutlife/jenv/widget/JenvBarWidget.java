@@ -3,6 +3,7 @@ package com.github.jokingaboutlife.jenv.widget;
 import com.github.jokingaboutlife.jenv.action.JenvFileAction;
 import com.github.jokingaboutlife.jenv.action.JenvJdkModelAction;
 import com.github.jokingaboutlife.jenv.icons.JenvIcons;
+import com.github.jokingaboutlife.jenv.listener.StatusBarUpdateMessage;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
 import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
 import com.intellij.icons.AllIcons;
@@ -11,12 +12,11 @@ import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.roots.impl.ProjectRootManagerImpl;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.impl.status.TextPanel;
@@ -67,7 +67,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
                 String projectJdkName = projectSdk != null ? projectSdk.getName() : "";
                 DataContext dataContext = DataManager.getInstance().getDataContext(component);
-                JenvJdkTableService.getInstance().validateJenvJdksFiles();
+                JenvJdkTableService.getInstance().validateJenvJdksFiles(project);
                 ListPopup popup = getPopup(projectJdkName, dataContext);
                 Dimension dimension = popup.getContent().getPreferredSize();
                 Point at = new Point(0, -dimension.height);
@@ -76,46 +76,41 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
             }
         };
         clickListener.installOn(this, true);
-        project.getMessageBus().connect().subscribe(ProjectJdkTable.JDK_TABLE_TOPIC, new ProjectJdkTable.Listener() {
-            @Override
-            public void jdkAdded(@NotNull Sdk jdk) {
-                updateStatusBar(statusBar);
+        project.getMessageBus().connect().subscribe(StatusBarUpdateMessage.TOPIC, (StatusBarUpdateMessage) () -> {
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (projectSdk != null) {
+                String name = projectSdk.getName();
+                JenvJdkModel jenvJdkModel = JenvJdkTableService.getInstance().findJenvJdkByName(name);
+                if (jenvJdkModel != null && jenvJdkModel.getExistsType().getIcon() != null) {
+                    setIcon(jenvJdkModel.getExistsType().getIcon());
+                } else {
+                    setIcon(JenvIcons.JENV_JDK);
+                }
+                setText(name);
+            } else {
+                setIcon(AllIcons.General.Error);
+                setText("No JDK");
             }
-
-            @Override
-            public void jdkRemoved(@NotNull Sdk jdk) {
-                updateStatusBar(statusBar);
-            }
-
-            @Override
-            public void jdkNameChanged(@NotNull Sdk jdk, @NotNull String previousName) {
-                updateStatusBar(statusBar);
-            }
+            statusBar.updateWidget(JENV_STATUS_BAR_ID);
         });
-        ProjectRootManagerImpl.getInstanceImpl(project).addProjectJdkListener(() -> updateStatusBar(statusBar));
-    }
-
-    private void updateStatusBar(@NotNull StatusBar statusBar) {
-        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (projectSdk != null) {
-            setIcon(JenvIcons.JENV_JDK);
-            setText(projectSdk.getName());
-        } else {
-            setIcon(AllIcons.General.Error);
-            setText("No JDK");
-        }
-        statusBar.updateWidget(JENV_STATUS_BAR_ID);
     }
 
     @Override
     public @Nullable Icon getIcon() {
+        Icon icon = AllIcons.General.Error;
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
-            setText(projectSdk.getName());
-            return JenvIcons.JENV_JDK;
+            JenvJdkModel jenvJdkModel = JenvJdkTableService.getInstance().findJenvJdkByName(projectSdk.getName());
+            if (jenvJdkModel.getExistsType().getIcon() != null) {
+                icon = jenvJdkModel.getExistsType().getIcon();
+            } else {
+                icon = JenvIcons.JENV_JDK;
+            }
+            setText(jenvJdkModel.getName());
+        } else {
+            setText("No JDK");
         }
-        setText("No JDK");
-        return AllIcons.General.Error;
+        return icon;
     }
 
     private ListPopup getPopup(String currentJdkName, DataContext dataContext) {
@@ -140,7 +135,7 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
                 JenvJdkTableService.getInstance().refreshJenvJdks();
             }
         });
-        actions.add(new AnAction("Add All", "Add all jEnv jdks to IDEA", AllIcons.Actions.AddList) {
+        actions.add(new AnAction("Add All", "Add all jEnv JDKs to IDEA", AllIcons.Actions.AddList) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 JenvJdkTableService.getInstance().addAllJenvJdksToIdea(e.getProject());
@@ -198,6 +193,6 @@ public class JenvBarWidget extends TextPanel.WithIconAndArrows implements Custom
 
     @Override
     public void dispose() {
-
+        Disposer.dispose(this);
     }
 }
