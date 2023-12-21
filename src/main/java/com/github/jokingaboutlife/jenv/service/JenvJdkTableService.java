@@ -13,17 +13,13 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.JavaSdkType;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
-import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.*;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
-import com.intellij.openapi.projectRoots.impl.UnknownSdkEditorNotification;
-import com.intellij.openapi.projectRoots.impl.UnknownSdkFix;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.EditorNotifications;
 import com.intellij.util.TimeoutUtil;
 import com.intellij.util.concurrency.AppExecutorUtil;
@@ -32,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -54,16 +51,16 @@ public class JenvJdkTableService {
     }
 
     public @NotNull List<JenvJdkModel> getJdksInIdeaAndInJenv() {
-        return myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndIsJenv).collect(Collectors.toList());
+        return myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndIsJenv).toList();
     }
 
     public @NotNull List<JenvJdkModel> getJdksInIdeaAndNotInJenv() {
-        return myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndNotJenv).collect(Collectors.toList());
+        return myIdeaJdks.stream().filter(JenvUtils::checkIsIdeaAndNotJenv).toList();
     }
 
 
     public List<JenvJdkModel> getJdksInIdeaAndInvalidJenv() {
-        return myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid)).collect(Collectors.toList());
+        return myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid)).toList();
     }
 
     public JenvJdkModel findJenvJdkByName(String jdkName) {
@@ -163,37 +160,36 @@ public class JenvJdkTableService {
             } else {
                 projectJdkName = null;
             }
-            myIdeaJdks.stream().filter(o -> o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) || JenvUtils.checkIsIdeaAndIsJenv(o))
-                    .forEach(o -> {
-                        if (o.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) && FileUtil.exists(o.getHomePath())) {
-                            o.setExistsType(getIdeaJdkExistsType(o.getIdeaJdkInfo(), o.getMajorVersion()));
-                            if (projectJdkName != null && projectJdkName.equals(o.getName())) {
-                                // current project JDK
-                                ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
-                                    Sdk jdk = ProjectRootManager.getInstance(project).getProjectSdk();
-                                    if (jdk != null) {
-                                        JavaSdk.getInstance().setupSdkPaths(jdk);
-                                    }
-                                    List<UnknownSdkFix> notifications = UnknownSdkEditorNotification.getInstance(project).getNotifications();
-                                    if (!notifications.isEmpty()) {
-                                        // reset project JDK (remove idea original invalid JDK banner)
-                                        // I can't find another way to remove idea original invalid JDK banner.
-                                        // temporarily use the following code to achieve. (set project null and reset the original JDK again)
-                                        SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
-                                        AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
-                                            ApplicationManager.getApplication().invokeLater(() -> {
-                                                ApplicationManager.getApplication().runWriteAction(() -> {
-                                                    SdkConfigurationUtil.setDirectoryProjectSdk(project, jdk);
-                                                });
-                                            });
-                                        }, 3, TimeUnit.SECONDS);
-                                    }
-                                }));
-                            }
-                        } else if (!FileUtil.exists(o.getHomePath())) {
-                            o.setExistsType(JdkExistsType.JEnvHomePathInvalid);
+            boolean invalidJdkHasExists = false;
+            for (JenvJdkModel ideaJdk : myIdeaJdks) {
+                if (ideaJdk.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid) || JenvUtils.checkIsIdeaAndIsJenv(ideaJdk)) {
+                    if (!FileUtil.exists(ideaJdk.getHomePath())) {
+                        ideaJdk.setExistsType(JdkExistsType.JEnvHomePathInvalid);
+                    } else if (ideaJdk.getExistsType().equals(JdkExistsType.JEnvHomePathInvalid)) {
+                        ideaJdk.setExistsType(getIdeaJdkExistsType(ideaJdk.getIdeaJdkInfo(), ideaJdk.getMajorVersion()));
+                        if (projectJdkName != null && projectJdkName.equals(ideaJdk.getName())) {
+                            invalidJdkHasExists = true;
                         }
-                    });
+                    }
+                }
+            }
+            if (invalidJdkHasExists) {
+                // reset project JDK (remove idea original invalid JDK banner)
+                // I can't find another way to remove idea original invalid JDK banner.
+                // temporarily use the following code to achieve. (set project null and reset the original JDK again)
+                ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
+                    // TODO: Most likely it won't work
+                    // refresh JDK home path
+                    VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(Objects.requireNonNull(projectSdk.getHomePath())));
+                    SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
+                    JavaSdk.getInstance().setupSdkPaths(projectSdk);
+                    AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
+                        ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
+                            SdkConfigurationUtil.setDirectoryProjectSdk(project, projectSdk);
+                        }));
+                    }, 5, TimeUnit.SECONDS);
+                }));
+            }
             EditorNotifications.getInstance(project).updateAllNotifications();
             ApplicationManager.getApplication().getMessageBus().syncPublisher(StatusBarUpdateMessage.TOPIC).updateStatusBar();
         }
