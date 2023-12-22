@@ -3,13 +3,13 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
-- change the position of the jEnv status bar (before `Go to Line` status bar)
-- remove duplicate jEnv JDK. Canonical path exists, delete all. Multiple same home path, delete them until only one exists
-- add `Invalid Jenv` separator in the pop menu of jEnv status bar, click item to remove this JDK
+- change jEnv status bar position (before `Go to Line` status bar)
+- remove duplicate jEnv JDK. (canonical path exists, delete all. Multiple same home path, delete them until only one exists)
+- add `Invalid Jenv` separator in jEnv status bar popup menu, click item to ask for remove this JDK
 - add completions for the `.java-version` file which under the project
 - change JDK rename dialog validator
-- add invalid jEnv JDK banner when the project JDK belongs to jEnv and invalid home path
-- click the jEnv JDK which only name not match by jEnv status bar, show the right jEnv name and ask for rename
+- click the jEnv JDK which only name not match, show the right jEnv name and ask for rename
+- add invalid jEnv JDK banner when the project JDK belongs to jEnv has an invalid home path
 
 ### Fixes
 - jEnv status bar icon no change when the project not set up JDK

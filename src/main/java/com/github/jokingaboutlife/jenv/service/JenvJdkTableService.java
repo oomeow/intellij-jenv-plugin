@@ -13,7 +13,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.*;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.JavaSdkType;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
@@ -28,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -174,13 +176,14 @@ public class JenvJdkTableService {
                 }
             }
             if (invalidJdkHasExists) {
-                // reset project JDK (remove idea original invalid JDK banner)
-                // I can't find another way to remove idea original invalid JDK banner.
-                // temporarily use the following code to achieve. (set project null and reset the original JDK again)
                 ApplicationManager.getApplication().invokeLater(() -> ApplicationManager.getApplication().runWriteAction(() -> {
-                    // TODO: Most likely it won't work
+                    // I can't find another way to remove idea original invalid JDK banner.
+                    // reset project JDK (remove idea original invalid JDK banner)
+                    // temporarily use the following code to achieve. (set project null and reset the original JDK again)
+                    // TODO: Most likely the Project JDK is not immediately available, probably need to restart IDEA to refresh JDK home path.
                     // refresh JDK home path
-                    VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(Objects.requireNonNull(projectSdk.getHomePath())));
+                    VirtualFileManager.getInstance().refreshWithoutFileWatcher(false);
+//                    VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(Objects.requireNonNull(projectSdk.getHomePath())));
                     SdkConfigurationUtil.setDirectoryProjectSdk(project, null);
                     JavaSdk.getInstance().setupSdkPaths(projectSdk);
                     AppExecutorUtil.getAppScheduledExecutorService().schedule(() -> {
