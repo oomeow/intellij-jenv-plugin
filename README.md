@@ -22,8 +22,9 @@ jEnv Helper
 - Change project JDK by status bar, when jEnv version file does not exist in this project, show message dialog to create jEnv version file in this project.
 
 ## 🔔️ Notice
-If the JDK of jEnv has been added to IDEA, and then you use the jenv command to remove and re-add it, the JDK is very likely to be unavailable. 
-When you use this JDK, but IDEA show notifications that there is an error in the current JDK, you may need to restart IDEA to refresh this JDK.
+After IDEA is opened, use the jenv command to repeatedly remove and add the JDK.  
+**This JDK is likely to be unavailable.**  
+At this time, it is recommended to restart IDEA to refresh the JDK information.  
 
 ## Screenshot
 <img src="./plugin-screenshot.png" alt="screenshot" align="center">
