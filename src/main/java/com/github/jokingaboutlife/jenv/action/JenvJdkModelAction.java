@@ -4,7 +4,10 @@ import com.github.jokingaboutlife.jenv.JenvBundle;
 import com.github.jokingaboutlife.jenv.config.JenvState;
 import com.github.jokingaboutlife.jenv.constant.JdkExistsType;
 import com.github.jokingaboutlife.jenv.constant.JenvConstants;
+import com.github.jokingaboutlife.jenv.dialog.JdkRenameDialog;
 import com.github.jokingaboutlife.jenv.model.JenvJdkModel;
+import com.github.jokingaboutlife.jenv.model.JenvRenameModel;
+import com.github.jokingaboutlife.jenv.service.JenvJdkTableService;
 import com.github.jokingaboutlife.jenv.service.JenvStateService;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -13,9 +16,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkModificator;
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
@@ -27,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JenvJdkModelAction extends DumbAwareAction {
@@ -62,7 +66,7 @@ public class JenvJdkModelAction extends DumbAwareAction {
             String realJenvName = null;
             if (jenvJdkModel.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
                 realJenvName = jenvJdkModel.getRealJenvName();
-                renamed = showRightMessage();
+                renamed = showRightMessage(project);
             }
             JenvState state = JenvStateService.getInstance(project).getState();
             if (state.isLocalJenvFileExists()) {
@@ -78,27 +82,35 @@ public class JenvJdkModelAction extends DumbAwareAction {
         }
     }
 
-    private boolean showRightMessage() {
+    private boolean showRightMessage(Project project) {
         AtomicBoolean rename = new AtomicBoolean(false);
-        String title = JenvBundle.message("messages.jenv.jdk.name.not.match.title");
-        String content = JenvBundle.message("messages.jenv.jdk.name.not.match.content", jenvJdkModel.getRealJenvName());
-        int result = Messages.showYesNoDialog(content, title, AllIcons.General.Information);
-        if (result == Messages.YES) {
-            ApplicationManager.getApplication().runWriteAction(() -> {
-                try {
-                    rename.set(true);
-                    Sdk jdk = jenvJdkModel.getIdeaJdkInfo();
-                    Sdk clone = (Sdk) jdk.clone();
-                    SdkModificator sdkModificator = clone.getSdkModificator();
-                    sdkModificator.setName(jenvJdkModel.getRealJenvName());
-                    sdkModificator.commitChanges();
-                    ProjectJdkTable.getInstance().updateJdk(jdk, clone);
-                } catch (CloneNotSupportedException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+        ArrayList<JenvRenameModel> jenvRenameModels = new ArrayList<>();
+        findRenameJDKs(jenvRenameModels, jenvJdkModel);
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            JdkRenameDialog jdkRenameDialog = new JdkRenameDialog(project, jenvRenameModels);
+            boolean result = jdkRenameDialog.showAndGet();
+            rename.set(result);
+        });
         return rename.get();
+    }
+
+    private void findRenameJDKs(List<JenvRenameModel> jenvRenameModels, JenvJdkModel jenvJdk) {
+        if (!jenvJdk.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
+            return;
+        }
+        String realJenvName = jenvJdk.getRealJenvName();
+        Optional<JenvRenameModel> optional = jenvRenameModels.stream().filter(o -> o.getChangeName().equals(realJenvName)).findFirst();
+        if (optional.isEmpty()) {
+            JenvRenameModel model = new JenvRenameModel();
+            model.setBelongJenv(true);
+            model.setChangeName(realJenvName);
+            model.setIdeaSdk(jenvJdk.getIdeaJdkInfo());
+            jenvRenameModels.add(model);
+            JenvJdkModel findJdk = JenvJdkTableService.getInstance().findJenvJdkByName(realJenvName);
+            if (findJdk != null) {
+                findRenameJDKs(jenvRenameModels, findJdk);
+            }
+        }
     }
 
     private void showInvalidJdkMessage(Project project, Sdk projectSdk) {
