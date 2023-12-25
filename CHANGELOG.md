@@ -3,6 +3,9 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
+
+## [0.1.0] - 2023-12-23
+
 - change jEnv status bar position (before `Go to Line` status bar)
 - remove duplicate jEnv JDK. (canonical path exists, delete all. Multiple same home path, delete them until only one exists)
 - add `Invalid Jenv` separator in jEnv status bar popup menu, click item to ask for remove this JDK
@@ -12,6 +15,7 @@
 - add invalid jEnv JDK banner when the project JDK belongs to jEnv has an invalid home path
 
 ### Fixes
+
 - jEnv status bar icon no change when the project not set up JDK
 - in add all jEnv JDK step, find JDK home file function some time (jenv remove and re-add) return null
 
@@ -43,7 +47,8 @@
 - AutoSwitch IDEA JDK when this project is open.
 - Add jEnv Select Dialog in the Tool menu.
 
-[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.4...v0.1.0
 [0.0.4]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.1...v0.0.2
