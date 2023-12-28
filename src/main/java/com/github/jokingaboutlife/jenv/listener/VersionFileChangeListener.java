@@ -17,6 +17,7 @@ import com.intellij.psi.PsiManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.List;
 
 public class VersionFileChangeListener implements BulkFileListener {
@@ -83,10 +84,11 @@ public class VersionFileChangeListener implements BulkFileListener {
                         // jenv version file has modified by other methods, and it means project JDK has changed, skip
                         continue;
                     }
-                    Document document = FileDocumentManager.getInstance().getDocument(changeEvent.getFile());
-                    if (document != null) {
-                        String jdkVersion = document.getText().trim();
+                    try {
+                        String jdkVersion = new String(jenvFile.contentsToByteArray()).trim();
                         stateService.changeJenvJdkWithNotification(jdkVersion);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
