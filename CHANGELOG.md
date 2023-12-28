@@ -3,6 +3,8 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
+### Fixes
+- type jenv command to change is not correctly change project JDK
 
 ## [0.1.0] - 2023-12-23
 
