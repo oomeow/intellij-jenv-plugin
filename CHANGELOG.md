@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 ### Fixes
-- incorrect JDK when using jenv command `jenv local` to switch JDK
+- incorrect JDK when using jenv command `jenv local` to switch project JDK
 - incorrect state of ok action button in the rename dialog
 - click the jEnv JDK which only name not match, rename dialog missing associated JDK to rename
 
