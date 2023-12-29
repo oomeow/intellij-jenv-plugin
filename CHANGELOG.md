@@ -3,7 +3,11 @@
 # intellij-jenv-plugin Changelog
 
 ## [Unreleased]
+
+## [0.1.1] - 2023-12-29
+
 ### Fixes
+
 - incorrect JDK when using jenv command `jenv local` to switch project JDK
 - incorrect state of ok action button in the rename dialog
 - click the jEnv JDK which only name not match, rename dialog missing associated JDK to rename
@@ -51,7 +55,8 @@
 - AutoSwitch IDEA JDK when this project is open.
 - Add jEnv Select Dialog in the Tool menu.
 
-[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.4...v0.1.0
 [0.0.4]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
