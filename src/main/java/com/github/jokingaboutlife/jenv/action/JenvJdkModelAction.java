@@ -95,16 +95,18 @@ public class JenvJdkModelAction extends DumbAwareAction {
     }
 
     private void findRenameJDKs(List<JenvRenameModel> jenvRenameModels, JenvJdkModel jenvJdk) {
-        if (!jenvJdk.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
-            return;
-        }
         String realJenvName = jenvJdk.getRealJenvName();
         Optional<JenvRenameModel> optional = jenvRenameModels.stream().filter(o -> o.getChangeName().equals(realJenvName)).findFirst();
         if (optional.isEmpty()) {
             JenvRenameModel model = new JenvRenameModel();
-            model.setBelongJenv(true);
-            model.setChangeName(realJenvName);
-            model.setIdeaSdk(jenvJdk.getIdeaJdkInfo());
+            if (jenvJdk.getExistsType().equals(JdkExistsType.OnlyNameNotMatch)) {
+                model.setBelongJenv(true);
+                model.setChangeName(realJenvName);
+                model.setIdeaSdk(jenvJdk.getIdeaJdkInfo());
+            } else {
+                model.setBelongJenv(false);
+                model.setIdeaSdk(jenvJdk.getIdeaJdkInfo());
+            }
             jenvRenameModels.add(model);
             JenvJdkModel findJdk = JenvJdkTableService.getInstance().findJenvJdkByName(realJenvName);
             if (findJdk != null) {

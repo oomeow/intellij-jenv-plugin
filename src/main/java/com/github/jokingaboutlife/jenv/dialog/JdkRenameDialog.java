@@ -127,6 +127,8 @@ public class JdkRenameDialog extends DialogWrapper {
             if (jenvRenameModel.isBelongJenv()) {
                 textField.setText(jenvRenameModel.getChangeName());
                 textField.setEnabled(false);
+            } else {
+                setOKActionEnabled(false);
             }
             panel.add(textField, editConstraints);
         }
@@ -164,49 +166,6 @@ public class JdkRenameDialog extends DialogWrapper {
             return null;
         };
     }
-
-//    @Nullable
-//    @Override
-//    protected ValidationInfo doValidate() {
-//        StringBuilder builder = new StringBuilder();
-//        Map<String, JenvRenameModel> map = new HashMap<>();
-//        for (JenvRenameModel jenvRenameModel : renameModelList) {
-//            if (jenvRenameModel.isBelongJenv()) {
-//                continue;
-//            }
-//            String name = jenvRenameModel.getIdeaSdk().getName();
-//            String changeName = jenvRenameModel.getChangeName();
-//            if (StringUtils.isEmpty(changeName)) {
-//                builder.append("[").append(name).append("]: ").append("The change name is empty.<br>");
-//                continue;
-//            }
-//            if (!jenvRenameModel.isBelongJenv() && jenvNameList.contains(changeName)) {
-//                builder.append("[").append(name).append("]: ").append("The change name ").append("[").append(changeName).append("] will add as jenv JDK.<br>");
-//                continue;
-//            }
-//            if (changeName.equals(name)) {
-//                builder.append("[").append(name).append("]: ").append("The change name not to same.<br>");
-//                continue;
-//            }
-//            if (ideaNameList.contains(changeName)) {
-//                builder.append("[").append(name).append("]: ").append("The change name ").append("[").append(changeName).append("] has exists in IDEA.<br>");
-//                continue;
-//            }
-//            if (map.get(changeName) != null) {
-//                builder.append("[").append(name).append("]: ").append("More than one of the same name ").append("[").append(changeName).append("].<br>");
-//            }
-//            map.put(changeName, jenvRenameModel);
-//        }
-//        ValidationInfo validationInfo = null;
-//        if (StringUtils.isNotEmpty(builder)) {
-//            builder.insert(0, "<html>");
-//            builder.append("</html>");
-//            String str = builder.toString();
-//            validationInfo = new ValidationInfo(str);
-//        }
-//        // return null mean success
-//        return validationInfo;
-//    }
 
     @Override
     protected void doOKAction() {
