@@ -1,35 +1,35 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.jokingaboutlife.jenv</id>
+    <id>com.github.oomeow.jenv</id>
     <name>jEnv Helper</name>
-    <vendor>JokingAboutLife</vendor>
+    <vendor>oomeow</vendor>
 
     <depends>com.intellij.modules.java</depends>
 
     <resource-bundle>messages.JenvBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.jokingaboutlife.jenv.service.JenvService"/>
-        <applicationService serviceImplementation="com.github.jokingaboutlife.jenv.service.JenvJdkTableService"/>
-        <projectService serviceImplementation="com.github.jokingaboutlife.jenv.service.JenvStateService"/>
-        <postStartupActivity implementation="com.github.jokingaboutlife.jenv.activity.JenvProjectStartupActivity"/>
+        <applicationService serviceImplementation="com.github.oomeow.jenv.service.JenvService"/>
+        <applicationService serviceImplementation="com.github.oomeow.jenv.service.JenvJdkTableService"/>
+        <projectService serviceImplementation="com.github.oomeow.jenv.service.JenvStateService"/>
+        <postStartupActivity implementation="com.github.oomeow.jenv.activity.JenvProjectStartupActivity"/>
         <statusBarWidgetFactory id="jEnv.Widget" order="before positionWidget, before Position"
-                                implementation="com.github.jokingaboutlife.jenv.widget.JenvBarWidgetFactory"/>
+                                implementation="com.github.oomeow.jenv.widget.JenvBarWidgetFactory"/>
         <notificationGroup id="jEnv" displayType="BALLOON" isLogByDefault="true"/>
-        <completion.contributor implementationClass="com.github.jokingaboutlife.jenv.completion.JenvVersionFileCompletion"
+        <completion.contributor implementationClass="com.github.oomeow.jenv.completion.JenvVersionFileCompletion"
                                 language="TEXT"/>
-        <editorNotificationProvider implementation="com.github.jokingaboutlife.jenv.widget.JenvBanner"/>
+        <editorNotificationProvider implementation="com.github.oomeow.jenv.widget.JenvBanner"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.jokingaboutlife.jenv.listener.VersionFileChangeListener"
+        <listener class="com.github.oomeow.jenv.listener.VersionFileChangeListener"
                   topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
-        <listener class="com.github.jokingaboutlife.jenv.listener.JdkChangeListener"
+        <listener class="com.github.oomeow.jenv.listener.JdkChangeListener"
                   topic="com.intellij.openapi.projectRoots.ProjectJdkTable$Listener"/>
     </applicationListeners>
 
     <projectListeners>
-        <listener class="com.github.jokingaboutlife.jenv.listener.JenvDocumentChangeListener"
+        <listener class="com.github.oomeow.jenv.listener.JenvDocumentChangeListener"
                   topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
     </projectListeners>
 

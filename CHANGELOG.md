@@ -55,10 +55,10 @@
 - AutoSwitch IDEA JDK when this project is open.
 - Add jEnv Select Dialog in the Tool menu.
 
-[Unreleased]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.4...v0.1.0
-[0.0.4]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.3...v0.0.4
-[0.0.3]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
-[0.0.2]: https://github.com/JokingAboutLife/intellij-jenv-plugin/compare/v0.0.1...v0.0.2
-[0.0.1]: https://github.com/JokingAboutLife/intellij-jenv-plugin/commits/v0.0.1
+[Unreleased]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.0.4...v0.1.0
+[0.0.4]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.0.3...v0.0.4
+[0.0.3]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.0.2...v0.0.3
+[0.0.2]: https://github.com/oomeow/intellij-jenv-plugin/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/oomeow/intellij-jenv-plugin/commits/v0.0.1
