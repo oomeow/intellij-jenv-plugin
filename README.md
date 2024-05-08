@@ -3,8 +3,8 @@
 jEnv Helper
 ===========
 
-[![Version](https://img.shields.io/jetbrains/plugin/v/23220-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/23220-jenv-helper?style=flat-square)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/23220-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/23220-jenv-helper?style=flat-square)
+[![Version](https://img.shields.io/jetbrains/plugin/v/24353-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/24353-jenv-helper?style=flat-square)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/24353-jenv-helper?style=flat-square)](https://plugins.jetbrains.com/plugin/24353-jenv-helper?style=flat-square)
 [![License](https://img.shields.io/github/license/oomeow/intellij-jenv-plugin.svg?style=flat-square)](https://img.shields.io/github/license/oomeow/intellij-jenv-plugin.svg?style=flat-square)
 
 **This is a project I just started to learn Intellij plugin development, some code may be written with some problems.**
@@ -26,10 +26,10 @@ After IDEA is opened, use the jenv command to repeatedly remove and add the JDK.
 **This JDK is likely to be unavailable.**  
 At this time, it is recommended to restart IDEA to refresh the JDK information.  
 
+<!-- Plugin description end -->
+
 ## Screenshot
 <img src="./plugin-screenshot.png" alt="screenshot" align="center">
-
-<!-- Plugin description end -->
 
 ## License
 This project is licensed under the [MIT license](https://github.com/oomeow/intellij-jenv-plugin/blob/8969efeb61b4cc2aaea465fb07ccac5bbca04272/LICENSE).
